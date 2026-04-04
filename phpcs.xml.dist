@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    name="agency-pass"
+    xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/PHPCSStandards/PHP_CodeSniffer/master/phpcs.xsd">
+
+    <description>PHPCS configuration for agency-pass.</description>
+
+    <file>.</file>
+    <exclude-pattern>vendor/*</exclude-pattern>
+    <exclude-pattern>node_modules/*</exclude-pattern>
+
+    <arg name="extensions" value="php"/>
+
+    <rule ref="Apermo"/>
+
+    <rule ref="WordPress.WP.I18n">
+        <properties>
+            <property name="text_domain" type="array">
+                <element value="agency-pass"/>
+            </property>
+        </properties>
+    </rule>
+
+    <!--
+        Project prefix for global functions, hooks, constants,
+        and namespace roots. E.g. prefix "Agency_Pass" allows
+        namespace Agency_Pass\Admin but flags Other\Admin.
+    -->
+    <rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+        <properties>
+            <property name="prefixes" type="array">
+                <element value="Agency_Pass"/>
+                <element value="agency_pass"/>
+            </property>
+        </properties>
+        <!-- Test bootstrap uses standard WP test globals, not plugin globals. -->
+        <exclude-pattern>tests/bootstrap.php</exclude-pattern>
+    </rule>
+
+    <config name="minimum_wp_version" value="6.2"/>
+</ruleset>
