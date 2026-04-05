@@ -15,8 +15,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Custom `agency_pass_admin` role (administrator minus user management capabilities)
 - Configurable email pattern matching via `AGENCY_PASS_EMAIL_PATTERN` constant
 - Token-based authentication with configurable TTL (`AGENCY_PASS_TOKEN_TTL`)
-- Temporary user creation with automatic expiry and cleanup (`AGENCY_PASS_USER_TTL`)
+- Temporary user creation with 8-hour expiry (`AGENCY_PASS_USER_TTL`, default 28800)
+- Expired users keep their account with no role (no content orphaning)
+- Auth cookie lifetime matches user TTL
+- Role revocation on logout when no other sessions remain
 - Mu-plugin loader for guaranteed early loading (installed on activation)
+- `AuditLoggerInterface` for extensible audit trail plugin integration
+- WP Activity Log (Melapress) as required audit trail dependency
+- Admin notice when no audit trail plugin is active (emergency login disabled)
 - Audit logging via custom actions and `error_log()` fallback
 - `agency_pass_email_allowed` filter for per-site extensibility
 - Hourly WP-Cron cleanup with init-based safety net
@@ -26,9 +32,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `map_meta_cap` filter to block emergency users from editing their own profile
 - Version-based role re-registration (capability updates without re-activation)
 - Playwright E2E test coverage including full magic link flow via Mailpit
-- `AuditLoggerInterface` for extensible audit trail plugin integration
-- WP Activity Log (Melapress) as required audit trail dependency
-- Admin notice when no audit trail plugin is active (emergency login disabled)
 
 [Unreleased]: https://github.com/apermo/agency-pass/compare/v0.1.0...HEAD
 [0.1.0]: https://github.com/apermo/agency-pass/releases/tag/v0.1.0

@@ -9,4 +9,4 @@ defined( 'WP_UNINSTALL_PLUGIN' ) || exit();
 require_once __DIR__ . '/vendor/autoload.php';
 
 Role::unregister();
-UserManager::delete_all();
+UserManager::revoke_all();

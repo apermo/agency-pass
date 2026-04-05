@@ -11,6 +11,7 @@ class UserManager {
 
 	private const META_EXPIRES = '_agency_pass_expires';
 	private const META_MARKER  = '_agency_pass_user';
+	private const DEFAULT_TTL  = 28800; // 8 hours (one work day).
 
 	/**
 	 * Create or reuse a temporary emergency user for the given email.
@@ -36,6 +37,8 @@ class UserManager {
 	/**
 	 * Find an existing non-expired emergency user by email.
 	 *
+	 * If an expired user is found, revoke its role instead of deleting it.
+	 *
 	 * @param string $email The email to search for.
 	 *
 	 * @return int|null User ID or null if none found.
@@ -60,7 +63,7 @@ class UserManager {
 		$expires = (int) get_user_meta( $user_id, self::META_EXPIRES, true );
 
 		if ( $expires < \time() ) {
-			wp_delete_user( $user_id );
+			self::revoke_role( $user_id );
 			return null;
 		}
 
@@ -113,19 +116,25 @@ class UserManager {
 	 * @return void
 	 */
 	public static function extend( int $user_id ): void {
+		$user = get_userdata( $user_id );
+		if ( $user !== false && ! \in_array( Role::ROLE_NAME, $user->roles, true ) ) {
+			$user->set_role( Role::ROLE_NAME );
+		}
+
 		update_user_meta( $user_id, self::META_EXPIRES, \time() + self::ttl() );
 	}
 
 	/**
-	 * Delete all expired emergency users.
+	 * Revoke the role of all expired emergency users.
 	 *
 	 * @return void
 	 */
-	public static function delete_expired(): void {
+	public static function expire_users(): void {
 		$users = get_users(
 			[
 				'meta_key'   => self::META_MARKER, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
 				'meta_value' => '1', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+				'role'       => Role::ROLE_NAME,
 				'fields'     => 'ID',
 			],
 		);
@@ -135,14 +144,14 @@ class UserManager {
 			$expires = (int) get_user_meta( $user_id, self::META_EXPIRES, true );
 
 			if ( $expires < \time() ) {
-				$user = get_userdata( $user_id );
-				wp_delete_user( $user_id );
+				self::revoke_role( $user_id );
 
+				$user = get_userdata( $user_id );
 				if ( $user !== false ) {
 					/**
-					 * Fires when an expired emergency user is cleaned up.
+					 * Fires when an emergency user's role is revoked after expiry.
 					 *
-					 * @param string $username The username that was cleaned up.
+					 * @param string $username The username that was expired.
 					 */
 					do_action( 'agency_pass_user_cleanup', $user->user_login ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 				}
@@ -151,11 +160,11 @@ class UserManager {
 	}
 
 	/**
-	 * Delete all emergency users (for uninstall/deactivation).
+	 * Revoke the role of all emergency users (for deactivation).
 	 *
 	 * @return void
 	 */
-	public static function delete_all(): void {
+	public static function revoke_all(): void {
 		$users = get_users(
 			[
 				'meta_key'   => self::META_MARKER, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
@@ -165,7 +174,21 @@ class UserManager {
 		);
 
 		foreach ( $users as $user_id ) {
-			wp_delete_user( (int) $user_id );
+			self::revoke_role( (int) $user_id );
+		}
+	}
+
+	/**
+	 * Remove the agency pass role from a user, leaving them with no role.
+	 *
+	 * @param int $user_id The user ID.
+	 *
+	 * @return void
+	 */
+	private static function revoke_role( int $user_id ): void {
+		$user = get_userdata( $user_id );
+		if ( $user !== false ) {
+			$user->set_role( '' );
 		}
 	}
 
@@ -191,11 +214,11 @@ class UserManager {
 	 *
 	 * @return int
 	 */
-	private static function ttl(): int {
+	public static function ttl(): int {
 		if ( \defined( 'AGENCY_PASS_USER_TTL' ) ) {
 			return (int) \AGENCY_PASS_USER_TTL;
 		}
 
-		return 86400;
+		return self::DEFAULT_TTL;
 	}
 }

@@ -52,7 +52,7 @@ class Cleanup {
 	 * @return void
 	 */
 	public static function run(): void {
-		UserManager::delete_expired();
+		UserManager::expire_users();
 	}
 
 	/**

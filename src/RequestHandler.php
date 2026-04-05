@@ -17,6 +17,7 @@ class RequestHandler {
 	public static function register_hooks(): void {
 		add_action( 'admin_post_nopriv_agency_pass_request', [ self::class, 'handle_request' ] );
 		add_action( 'admin_post_nopriv_agency_pass_login', [ self::class, 'handle_login' ] );
+		add_action( 'wp_logout', [ self::class, 'maybe_revoke_on_logout' ] );
 	}
 
 	/**
@@ -102,7 +103,12 @@ class RequestHandler {
 			);
 		}
 
+		// Limit cookie lifetime to the user TTL.
+		$cookie_filter = static fn(): int => UserManager::ttl();
+		add_filter( 'auth_cookie_expiration', $cookie_filter );
 		wp_set_auth_cookie( $user_id, false );
+		remove_filter( 'auth_cookie_expiration', $cookie_filter );
+
 		wp_set_current_user( $user_id );
 
 		/**
@@ -198,6 +204,32 @@ class RequestHandler {
 		);
 
 		wp_mail( $email, $subject, $message );
+	}
+
+	/**
+	 * Redirect back to the login page with a result indicator.
+	 *
+	 * @param string $result Either 'sent' or 'rejected'.
+	 *
+	 * @return void
+	 */
+	/**
+	 * Revoke the agency pass role on logout if no other sessions remain.
+	 *
+	 * @param int $user_id The ID of the user logging out.
+	 *
+	 * @return void
+	 */
+	public static function maybe_revoke_on_logout( int $user_id ): void {
+		$user = get_userdata( $user_id );
+		if ( $user === false || ! \in_array( Role::ROLE_NAME, $user->roles, true ) ) {
+			return;
+		}
+
+		$sessions = \WP_Session_Tokens::get_instance( $user_id );
+		if ( \count( $sessions->get_all() ) <= 1 ) {
+			$user->set_role( '' );
+		}
 	}
 
 	/**

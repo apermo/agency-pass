@@ -62,7 +62,7 @@ class Plugin {
 		MuPluginInstaller::uninstall();
 		Role::unregister();
 		Cleanup::unschedule();
-		UserManager::delete_all();
+		UserManager::revoke_all();
 	}
 
 	/**
