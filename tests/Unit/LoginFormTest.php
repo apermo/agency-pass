@@ -42,7 +42,7 @@ class LoginFormTest extends TestCase {
 	public function test_register_hooks(): void {
 		Functions\expect( 'add_action' )
 			->once()
-			->with( 'login_form', [ LoginForm::class, 'render' ] );
+			->with( 'login_footer', [ LoginForm::class, 'render' ] );
 
 		Functions\expect( 'add_action' )
 			->once()

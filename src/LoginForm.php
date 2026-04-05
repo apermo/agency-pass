@@ -15,7 +15,7 @@ class LoginForm {
 	 * @return void
 	 */
 	public static function register_hooks(): void {
-		add_action( 'login_form', [ self::class, 'render' ] );
+		add_action( 'login_footer', [ self::class, 'render' ] );
 		add_action( 'login_enqueue_scripts', [ self::class, 'enqueue_styles' ] );
 		add_filter( 'login_message', [ self::class, 'confirmation_message' ] );
 	}
@@ -49,10 +49,17 @@ class LoginForm {
 			</div>
 		</div>
 		<script>
-			document.getElementById('agency-pass-toggle').addEventListener('click', function() {
-				var form = document.getElementById('agency-pass-form');
-				form.style.display = form.style.display === 'none' ? 'block' : 'none';
-			});
+			(function() {
+				var wrapper = document.getElementById('agency-pass-wrapper');
+				var loginForm = document.getElementById('loginform');
+				if (loginForm && wrapper) {
+					loginForm.parentNode.insertBefore(wrapper, loginForm.nextSibling);
+				}
+				document.getElementById('agency-pass-toggle').addEventListener('click', function() {
+					var form = document.getElementById('agency-pass-form');
+					form.style.display = form.style.display === 'none' ? 'block' : 'none';
+				});
+			})();
 		</script>
 		<?php
 	}
@@ -83,9 +90,11 @@ class LoginForm {
 		?>
 		<style>
 			#agency-pass-wrapper {
-				margin-top: 16px;
-				padding-top: 16px;
-				border-top: 1px solid #dcdcde;
+				margin-top: 20px;
+				padding: 26px 24px;
+				background: #fff;
+				border: 1px solid #c3c4c7;
+				box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 				text-align: center;
 			}
 			#agency-pass-toggle {
