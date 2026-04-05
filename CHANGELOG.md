@@ -26,6 +26,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `map_meta_cap` filter to block emergency users from editing their own profile
 - Version-based role re-registration (capability updates without re-activation)
 - Playwright E2E test coverage including full magic link flow via Mailpit
+- `AuditLoggerInterface` for extensible audit trail plugin integration
+- WP Activity Log (Melapress) as required audit trail dependency
+- Admin notice when no audit trail plugin is active (emergency login disabled)
 
 [Unreleased]: https://github.com/apermo/agency-pass/compare/v0.1.0...HEAD
 [0.1.0]: https://github.com/apermo/agency-pass/releases/tag/v0.1.0

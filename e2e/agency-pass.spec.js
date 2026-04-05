@@ -1,6 +1,7 @@
 const { test, expect } = require('@playwright/test');
 
 const MAILPIT_API = (process.env.WP_BASE_URL || 'https://agency-pass.ddev.site').replace(/:\d+$/, '') + ':8026/api/v1';
+const WP_CLI = 'ddev wp';
 
 test.describe('Agency Pass login form', () => {
     test.use({ storageState: { cookies: [], origins: [] } });
