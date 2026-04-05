@@ -31,15 +31,15 @@ class Role {
 	/**
 	 * Prevent agency pass users from editing their own profile.
 	 *
-	 * @param string[] $caps    Primitive capabilities required.
-	 * @param string   $cap     Meta capability being checked.
-	 * @param int      $user_id User ID being checked.
-	 * @param mixed[]  $args    Additional arguments.
+	 * @param string[] $caps       Primitive capabilities required.
+	 * @param string   $capability Meta capability being checked.
+	 * @param int      $user_id   User ID being checked.
+	 * @param mixed[]  $args      Additional arguments.
 	 *
 	 * @return string[]
 	 */
-	public static function block_self_edit( array $caps, string $cap, int $user_id, array $args ): array {
-		if ( $cap !== 'edit_user' ) {
+	public static function block_self_edit( array $caps, string $capability, int $user_id, array $args ): array {
+		if ( $capability !== 'edit_user' ) {
 			return $caps;
 		}
 
@@ -106,6 +106,6 @@ class Role {
 
 		remove_role( self::ROLE_NAME );
 		self::register();
-		update_option( 'agency_pass_role_version', Plugin::VERSION );
+		update_option( 'agency_pass_role_version', Plugin::VERSION, true );
 	}
 }
