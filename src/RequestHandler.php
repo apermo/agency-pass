@@ -292,5 +292,4 @@ class RequestHandler {
 			$user->set_role( '' );
 		}
 	}
-
 }
