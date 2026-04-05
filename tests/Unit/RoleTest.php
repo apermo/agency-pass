@@ -197,7 +197,7 @@ class RoleTest extends TestCase {
 			->once()
 			->with( 'agency_pass_admin' );
 
-		// register() calls get_role('administrator').
+		// The register method will query the administrator role.
 		Functions\expect( 'get_role' )
 			->once()
 			->with( 'administrator' )

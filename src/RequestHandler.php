@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Agency_Pass;
 
+use WP_Error;
+use WP_Session_Tokens;
+
 /**
  * Handles magic link request and login actions.
  */
@@ -59,7 +62,17 @@ class RequestHandler {
 		}
 
 		// Default: reveal rejection and trigger wp_login_failed for fail2ban / rate limiters.
-		$error = new \WP_Error( 'agency_pass_rejected', __( 'Your email address is not accepted.', 'agency-pass' ) );
+		$error = new WP_Error( 'agency_pass_rejected', __( 'Your email address is not accepted.', 'agency-pass' ) );
+
+		/**
+		 * Fires after a failed Agency Pass login attempt.
+		 *
+		 * Triggers the same action as a failed WordPress login, allowing
+		 * rate limiters (Limit Login Attempts, fail2ban) to track the attempt.
+		 *
+		 * @param string   $email The email address that was rejected.
+		 * @param WP_Error $error The error object.
+		 */
 		do_action( 'wp_login_failed', $email, $error ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 		self::redirect_with_result( 'rejected' );
 	}
@@ -226,7 +239,7 @@ class RequestHandler {
 			return;
 		}
 
-		$sessions = \WP_Session_Tokens::get_instance( $user_id );
+		$sessions = WP_Session_Tokens::get_instance( $user_id );
 		if ( \count( $sessions->get_all() ) <= 1 ) {
 			$user->set_role( '' );
 		}

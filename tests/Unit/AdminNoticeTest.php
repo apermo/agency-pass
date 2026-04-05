@@ -79,8 +79,9 @@ class AdminNoticeTest extends TestCase {
 		Functions\stubs(
 			[
 				'esc_html_e' => static function ( string $text ): void {
-					echo $text;
+					echo esc_html( $text ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- test stub
 				},
+				'esc_html' => static fn( string $text ): string => $text,
 			],
 		);
 

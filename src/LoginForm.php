@@ -100,7 +100,10 @@ class LoginForm {
 	 * @return void
 	 */
 	public static function maybe_shake(): void {
-		if ( ! isset( $_GET['agency_pass'] ) || $_GET['agency_pass'] !== 'rejected' ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			! isset( $_GET['agency_pass'] )
+			|| $_GET['agency_pass'] !== 'rejected'
+		) {
 			return;
 		}
 
