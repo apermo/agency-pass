@@ -58,7 +58,8 @@ class RequestHandler {
 		}
 
 		// Default: reveal rejection and trigger wp_login_failed for fail2ban / rate limiters.
-		do_action( 'wp_login_failed', $email ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+		$error = new \WP_Error( 'agency_pass_rejected', __( 'Your email address is not accepted.', 'agency-pass' ) );
+		do_action( 'wp_login_failed', $email, $error ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 		self::redirect_with_result( 'rejected' );
 	}
 
