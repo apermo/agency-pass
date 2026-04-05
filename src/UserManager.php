@@ -43,11 +43,12 @@ class UserManager {
 	public static function find_existing( string $email ): ?int {
 		$users = get_users(
 			[
-				'email'      => $email,
-				'meta_key'   => self::META_MARKER, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
-				'meta_value' => '1', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
-				'number'     => 1,
-				'fields'     => 'ID',
+				'search'         => $email,
+				'search_columns' => [ 'user_email' ],
+				'meta_key'       => self::META_MARKER, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+				'meta_value'     => '1', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+				'number'         => 1,
+				'fields'         => 'ID',
 			],
 		);
 
