@@ -10,6 +10,17 @@ db_snapshots/
 sequelpro.spf
 mutagen/
 xhprof/
+apache/
+db-build/
+homeadditions/
+mysql/
+nginx_full/
+php/
+providers/
+share-providers/
+traefik/
+web-build/
+web-entrypoint.d/
 
 # Addon files (managed by ddev add-on)
 commands/
