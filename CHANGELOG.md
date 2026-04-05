@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.0]
+
 ### Added
 
 - Self-service emergency login via magic link on the WordPress login form
@@ -23,13 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `list_users` capability on the custom role (can view user list, cannot edit)
 - `map_meta_cap` filter to block emergency users from editing their own profile
 - Version-based role re-registration (capability updates without re-activation)
-- Full E2E test coverage via Playwright + Mailpit (magic link flow)
+- Playwright E2E test coverage including full magic link flow via Mailpit
 
-### Fixed
-
-- Login form rendered outside WordPress `<form>` to avoid nested form issues
-- User lookup by email uses `search` + `search_columns` instead of non-existent `email` parameter
-
-### Changed
-
-- DDEV docroot moved to `.ddev/wordpress/` to keep project root clean
+[Unreleased]: https://github.com/apermo/agency-pass/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/apermo/agency-pass/releases/tag/v0.1.0
