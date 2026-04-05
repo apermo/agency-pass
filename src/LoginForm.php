@@ -104,6 +104,13 @@ class LoginForm {
 				margin-top: 12px;
 				text-align: left;
 			}
+			#agency-pass-form form {
+				margin: 0;
+				padding: 0;
+				border: none;
+				box-shadow: none;
+				background: none;
+			}
 			#agency-pass-form .input {
 				width: 100%;
 			}
