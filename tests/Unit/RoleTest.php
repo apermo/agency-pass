@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Agency_Pass\Tests\Unit;
 
+use Agency_Pass\Plugin;
 use Agency_Pass\Role;
 use Brain\Monkey;
 use Brain\Monkey\Functions;
@@ -129,10 +130,6 @@ class RoleTest extends TestCase {
 			->with( 'administrator' )
 			->andReturn( $admin_role );
 
-		Functions\expect( '__' )
-			->once()
-			->andReturnFirstArg();
-
 		$captured_caps = null;
 
 		Functions\expect( 'add_role' )
@@ -186,31 +183,43 @@ class RoleTest extends TestCase {
 	}
 
 	/**
-	 * Verify ensure_exists registers the role if missing.
+	 * Verify ensure_exists re-registers when version changes.
 	 *
 	 * @return void
 	 */
-	public function test_ensure_exists_registers_when_missing(): void {
-		Functions\expect( 'get_role' )
+	public function test_ensure_exists_re_registers_on_version_change(): void {
+		Functions\expect( 'get_option' )
 			->once()
-			->with( 'agency_pass_admin' )
-			->andReturn( null );
+			->with( 'agency_pass_role_version', '' )
+			->andReturn( '0.0.0' );
 
-		// register() will be called, which calls get_role('administrator').
+		Functions\expect( 'remove_role' )
+			->once()
+			->with( 'agency_pass_admin' );
+
+		// register() calls get_role('administrator').
 		Functions\expect( 'get_role' )
 			->once()
 			->with( 'administrator' )
 			->andReturn( null );
 
+		Functions\expect( 'update_option' )
+			->once();
+
 		Role::ensure_exists();
 	}
 
 	/**
-	 * Verify ensure_exists does nothing if role already exists.
+	 * Verify ensure_exists skips when version matches and role exists.
 	 *
 	 * @return void
 	 */
-	public function test_ensure_exists_skips_when_present(): void {
+	public function test_ensure_exists_skips_when_current(): void {
+		Functions\expect( 'get_option' )
+			->once()
+			->with( 'agency_pass_role_version', '' )
+			->andReturn( Plugin::VERSION );
+
 		$role = new stdClass();
 
 		Functions\expect( 'get_role' )
@@ -218,7 +227,7 @@ class RoleTest extends TestCase {
 			->with( 'agency_pass_admin' )
 			->andReturn( $role );
 
-		Functions\expect( 'add_role' )->never();
+		Functions\expect( 'remove_role' )->never();
 
 		Role::ensure_exists();
 	}

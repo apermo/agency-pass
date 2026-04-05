@@ -43,6 +43,12 @@ class Role {
 			return $caps;
 		}
 
+		// Only block when the target is the user themselves (self-edit / profile page).
+		$target_id = $args[0] ?? 0;
+		if ( (int) $target_id !== $user_id ) {
+			return $caps;
+		}
+
 		$user = get_userdata( $user_id );
 		if ( $user === false || ! \in_array( self::ROLE_NAME, $user->roles, true ) ) {
 			return $caps;
@@ -69,7 +75,7 @@ class Role {
 
 		add_role(
 			self::ROLE_NAME,
-			__( 'Agency Pass Admin', 'agency-pass' ),
+			'Agency Pass Admin',
 			$capabilitys,
 		);
 	}
@@ -84,15 +90,22 @@ class Role {
 	}
 
 	/**
-	 * Ensure the role exists at runtime.
+	 * Ensure the role exists and is up to date.
 	 *
-	 * Handles the case where the plugin was updated but not re-activated.
+	 * Uses a version option to detect capability changes and re-register
+	 * without requiring manual re-activation.
 	 *
 	 * @return void
 	 */
 	public static function ensure_exists(): void {
-		if ( get_role( self::ROLE_NAME ) === null ) {
-			self::register();
+		$stored = get_option( 'agency_pass_role_version', '' );
+
+		if ( $stored === Plugin::VERSION && get_role( self::ROLE_NAME ) !== null ) {
+			return;
 		}
+
+		remove_role( self::ROLE_NAME );
+		self::register();
+		update_option( 'agency_pass_role_version', Plugin::VERSION );
 	}
 }
