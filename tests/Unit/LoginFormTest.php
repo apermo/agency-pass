@@ -30,6 +30,7 @@ class LoginFormTest extends TestCase {
 	 * @return void
 	 */
 	protected function tearDown(): void {
+		unset( $_GET['agency_pass'] );
 		Monkey\tearDown();
 		parent::tearDown();
 	}
@@ -61,26 +62,50 @@ class LoginFormTest extends TestCase {
 	 * @return void
 	 */
 	public function test_confirmation_message_passthrough(): void {
-		unset( $_GET['agency_pass_sent'] );
-
 		$this->assertSame( 'Original', LoginForm::confirmation_message( 'Original' ) );
 	}
 
 	/**
-	 * Verify confirmation_message returns confirmation when query param is set.
+	 * Verify confirmation_message returns generic notice on success.
 	 *
 	 * @return void
 	 */
-	public function test_confirmation_message_shows_notice(): void {
-		$_GET['agency_pass_sent'] = '1';
+	public function test_confirmation_message_shows_sent_notice(): void {
+		$_GET['agency_pass'] = 'sent';
 
-		Functions\stubs( [ 'esc_html__' => 'If your email is authorized, you will receive a login link shortly.' ] );
+		Functions\stubs(
+			[
+				'sanitize_text_field' => static fn( $val ) => $val,
+				'wp_unslash'          => static fn( $val ) => $val,
+				'esc_html__'          => static fn( $text ) => $text,
+			],
+		);
 
 		$result = LoginForm::confirmation_message( 'Original' );
 
 		$this->assertStringContainsString( 'If your email is authorized', $result );
 		$this->assertStringContainsString( '<p class="message">', $result );
+	}
 
-		unset( $_GET['agency_pass_sent'] );
+	/**
+	 * Verify confirmation_message returns error on rejection.
+	 *
+	 * @return void
+	 */
+	public function test_confirmation_message_shows_rejection_error(): void {
+		$_GET['agency_pass'] = 'rejected';
+
+		Functions\stubs(
+			[
+				'sanitize_text_field' => static fn( $val ) => $val,
+				'wp_unslash'          => static fn( $val ) => $val,
+				'esc_html__'          => static fn( $text ) => $text,
+			],
+		);
+
+		$result = LoginForm::confirmation_message( 'Original' );
+
+		$this->assertStringContainsString( 'not accepted', $result );
+		$this->assertStringContainsString( 'login_error', $result );
 	}
 }

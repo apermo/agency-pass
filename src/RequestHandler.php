@@ -49,10 +49,17 @@ class RequestHandler {
 		if ( $matched ) {
 			$token = Token::generate( $email, $ip );
 			self::send_magic_link( $email, $token );
+			self::redirect_with_result( 'sent' );
 		}
 
-		// Generic message to prevent email enumeration.
-		self::redirect_with_message();
+		if ( self::is_strict_mode() ) {
+			// Strict mode: generic message regardless of match (prevents enumeration).
+			self::redirect_with_result( 'sent' );
+		}
+
+		// Default: reveal rejection and trigger wp_login_failed for fail2ban / rate limiters.
+		do_action( 'wp_login_failed', $email ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+		self::redirect_with_result( 'rejected' );
 	}
 
 	/**
@@ -108,6 +115,17 @@ class RequestHandler {
 
 		wp_safe_redirect( admin_url() );
 		exit();
+	}
+
+	/**
+	 * Check whether strict mode is enabled.
+	 *
+	 * When enabled, the plugin never reveals whether an email matched.
+	 *
+	 * @return bool
+	 */
+	public static function is_strict_mode(): bool {
+		return \defined( 'AGENCY_PASS_STRICT_MODE' ) && \AGENCY_PASS_STRICT_MODE === true;
 	}
 
 	/**
@@ -182,14 +200,16 @@ class RequestHandler {
 	}
 
 	/**
-	 * Redirect back to the login page with a generic confirmation message.
+	 * Redirect back to the login page with a result indicator.
+	 *
+	 * @param string $result Either 'sent' or 'rejected'.
 	 *
 	 * @return void
 	 */
-	private static function redirect_with_message(): void {
+	private static function redirect_with_result( string $result ): void {
 		$redirect_url = add_query_arg(
-			'agency_pass_sent',
-			'1',
+			'agency_pass',
+			$result,
 			wp_login_url(),
 		);
 

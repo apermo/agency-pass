@@ -65,15 +65,23 @@ class LoginForm {
 	}
 
 	/**
-	 * Show a confirmation message after a magic link request.
+	 * Show a result message after a magic link request.
 	 *
 	 * @param string $message The existing login message.
 	 *
 	 * @return string
 	 */
 	public static function confirmation_message( string $message ): string {
-		if ( ! isset( $_GET['agency_pass_sent'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( ! isset( $_GET['agency_pass'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			return $message;
+		}
+
+		$result = sanitize_text_field( wp_unslash( $_GET['agency_pass'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+		if ( $result === 'rejected' ) {
+			return '<div id="login_error"><p>'
+				. esc_html__( 'Your email address is not accepted.', 'agency-pass' )
+				. '</p></div>';
 		}
 
 		return '<p class="message">'
