@@ -1,6 +1,7 @@
 const { defineConfig } = require('@playwright/test');
 
 module.exports = defineConfig({
+    globalSetup: './e2e/global-setup.js',
     testDir: './e2e',
     workers: 1,
     retries: process.env.CI ? 1 : 0,

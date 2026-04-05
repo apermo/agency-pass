@@ -1,15 +1,16 @@
 const { test, expect } = require('@playwright/test');
 const { execSync } = require('child_process');
 
-const wpCli = (cmd) => execSync(`ddev wp ${cmd}`, { encoding: 'utf-8' }).trim();
+const wp = process.env.CI ? 'wp --path=/tmp/wordpress' : 'ddev wp';
+const run = (cmd) => execSync(`${wp} ${cmd}`, { encoding: 'utf-8' }).trim();
 
 test.describe('Agency Pass without audit trail plugin', () => {
     test.beforeAll(() => {
-        wpCli('plugin deactivate wp-security-audit-log');
+        run('plugin deactivate wp-security-audit-log');
     });
 
     test.afterAll(() => {
-        wpCli('plugin activate wp-security-audit-log');
+        run('plugin activate wp-security-audit-log');
     });
 
     test('does not show Agency Pass button on login page', async ({ browser }) => {
