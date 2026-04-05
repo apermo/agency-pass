@@ -1,8 +1,7 @@
 const { test, expect } = require('@playwright/test');
 const { execSync } = require('child_process');
 
-const wp = process.env.CI ? 'wp --path=/tmp/wordpress' : 'ddev wp';
-const run = (cmd) => execSync(`${wp} ${cmd}`, { encoding: 'utf-8' }).trim();
+const run = (cmd) => execSync(`ddev wp ${cmd}`, { encoding: 'utf-8' }).trim();
 
 test.describe('Agency Pass without audit trail plugin', () => {
     test.beforeAll(() => {

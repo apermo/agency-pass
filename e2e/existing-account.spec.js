@@ -2,8 +2,7 @@ const { test, expect } = require('@playwright/test');
 const { execSync } = require('child_process');
 
 const MAILPIT_API = (process.env.WP_BASE_URL || 'https://agency-pass.ddev.site').replace(/:\d+$/, '') + ':8026/api/v1';
-const wp = process.env.CI ? 'wp --path=/tmp/wordpress' : 'ddev wp';
-const run = (cmd) => execSync(`${wp} ${cmd}`, { encoding: 'utf-8' }).trim();
+const run = (cmd) => execSync(`ddev wp ${cmd}`, { encoding: 'utf-8' }).trim();
 
 test.describe('Agency Pass with existing admin account', () => {
     test.use({ storageState: { cookies: [], origins: [] } });
