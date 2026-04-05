@@ -18,6 +18,7 @@ class LoginForm {
 		add_action( 'login_footer', [ self::class, 'render' ] );
 		add_action( 'login_enqueue_scripts', [ self::class, 'enqueue_styles' ] );
 		add_filter( 'login_message', [ self::class, 'confirmation_message' ] );
+		add_action( 'login_footer', [ self::class, 'maybe_shake' ], 12 );
 	}
 
 	/**
@@ -79,14 +80,31 @@ class LoginForm {
 		$result = sanitize_text_field( wp_unslash( $_GET['agency_pass'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 		if ( $result === 'rejected' ) {
-			return '<div id="login_error"><p>'
+			return '<div id="login_error"><strong>'
+				. esc_html__( 'Error:', 'agency-pass' )
+				. '</strong> '
 				. esc_html__( 'Your email address is not accepted.', 'agency-pass' )
-				. '</p></div>';
+				. '</div>';
 		}
 
 		return '<p class="message">'
 			. esc_html__( 'If your email is authorized, you will receive a login link shortly.', 'agency-pass' )
 			. '</p>';
+	}
+
+	/**
+	 * Trigger the login form shake animation on rejection.
+	 *
+	 * Mirrors the wp_shake_js() behavior from WordPress core.
+	 *
+	 * @return void
+	 */
+	public static function maybe_shake(): void {
+		if ( ! isset( $_GET['agency_pass'] ) || $_GET['agency_pass'] !== 'rejected' ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return;
+		}
+
+		wp_print_inline_script_tag( "document.querySelector('form').classList.add('shake');" );
 	}
 
 	/**

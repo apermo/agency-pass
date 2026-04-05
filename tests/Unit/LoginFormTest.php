@@ -53,6 +53,10 @@ class LoginFormTest extends TestCase {
 			->once()
 			->with( 'login_message', [ LoginForm::class, 'confirmation_message' ] );
 
+		Functions\expect( 'add_action' )
+			->once()
+			->with( 'login_footer', [ LoginForm::class, 'maybe_shake' ], 12 );
+
 		LoginForm::register_hooks();
 	}
 
@@ -107,5 +111,6 @@ class LoginFormTest extends TestCase {
 
 		$this->assertStringContainsString( 'not accepted', $result );
 		$this->assertStringContainsString( 'login_error', $result );
+		$this->assertStringContainsString( '<strong>', $result );
 	}
 }
