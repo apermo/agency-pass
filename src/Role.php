@@ -15,10 +15,41 @@ class Role {
 		'edit_users',
 		'delete_users',
 		'create_users',
-		'list_users',
 		'promote_users',
 		'remove_users',
 	];
+
+	/**
+	 * Register hooks for capability filtering.
+	 *
+	 * @return void
+	 */
+	public static function register_hooks(): void {
+		add_filter( 'map_meta_cap', [ self::class, 'block_self_edit' ], 10, 4 );
+	}
+
+	/**
+	 * Prevent agency pass users from editing their own profile.
+	 *
+	 * @param string[] $caps    Primitive capabilities required.
+	 * @param string   $cap     Meta capability being checked.
+	 * @param int      $user_id User ID being checked.
+	 * @param mixed[]  $args    Additional arguments.
+	 *
+	 * @return string[]
+	 */
+	public static function block_self_edit( array $caps, string $cap, int $user_id, array $args ): array {
+		if ( $cap !== 'edit_user' ) {
+			return $caps;
+		}
+
+		$user = get_userdata( $user_id );
+		if ( $user === false || ! \in_array( self::ROLE_NAME, $user->roles, true ) ) {
+			return $caps;
+		}
+
+		return [ 'do_not_allow' ];
+	}
 
 	/**
 	 * Register the custom role by cloning administrator and removing user-management caps.

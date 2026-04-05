@@ -78,6 +78,7 @@ class Plugin {
 		}
 
 		Role::ensure_exists();
+		Role::register_hooks();
 		LoginForm::register_hooks();
 		RequestHandler::register_hooks();
 		Cleanup::register_hooks();
