@@ -51,6 +51,14 @@ class RequestHandler {
 		do_action( 'agency_pass_link_requested', $email, $ip, $matched ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 
 		if ( $matched ) {
+			// If a non-managed user with this email already exists, send them
+			// a "you have an account" email instead of a magic link.
+			$existing = get_user_by( 'email', $email );
+			if ( $existing !== false && (string) get_user_meta( $existing->ID, '_agency_pass_user', true ) === '' ) {
+				self::send_existing_account_email( $email );
+				self::redirect_with_result( 'sent' );
+			}
+
 			$token = Token::generate( $email, $ip );
 			self::send_magic_link( $email, $token );
 			self::redirect_with_result( 'sent' );
@@ -220,29 +228,32 @@ class RequestHandler {
 	}
 
 	/**
-	 * Redirect back to the login page with a result indicator.
+	 * Send an email to an existing (non-managed) user who tried Agency Pass.
 	 *
-	 * @param string $result Either 'sent' or 'rejected'.
-	 *
-	 * @return void
-	 */
-	/**
-	 * Revoke the agency pass role on logout if no other sessions remain.
-	 *
-	 * @param int $user_id The ID of the user logging out.
+	 * @param string $email The recipient email.
 	 *
 	 * @return void
 	 */
-	public static function maybe_revoke_on_logout( int $user_id ): void {
-		$user = get_userdata( $user_id );
-		if ( $user === false || ! \in_array( Role::ROLE_NAME, $user->roles, true ) ) {
-			return;
-		}
+	private static function send_existing_account_email( string $email ): void {
+		$site_name = get_bloginfo( 'name' );
+		$subject   = \sprintf(
+			/* translators: %s: site name */
+			__( '[%s] You already have an account', 'agency-pass' ),
+			$site_name,
+		);
 
-		$sessions = WP_Session_Tokens::get_instance( $user_id );
-		if ( \count( $sessions->get_all() ) <= 1 ) {
-			$user->set_role( '' );
-		}
+		$message = \sprintf(
+			/* translators: 1: site name, 2: login URL, 3: password reset URL */
+			__(
+				"You requested emergency access to %1\$s, but you already have an account.\n\nLog in here:\n%2\$s\n\nForgot your password?\n%3\$s",
+				'agency-pass',
+			),
+			$site_name,
+			wp_login_url(),
+			wp_lostpassword_url(),
+		);
+
+		wp_mail( $email, $subject, $message );
 	}
 
 	/**
@@ -262,4 +273,24 @@ class RequestHandler {
 		wp_safe_redirect( $redirect_url );
 		exit();
 	}
+
+	/**
+	 * Revoke the agency pass role on logout if no other sessions remain.
+	 *
+	 * @param int $user_id The ID of the user logging out.
+	 *
+	 * @return void
+	 */
+	public static function maybe_revoke_on_logout( int $user_id ): void {
+		$user = get_userdata( $user_id );
+		if ( $user === false || ! \in_array( Role::ROLE_NAME, $user->roles, true ) ) {
+			return;
+		}
+
+		$sessions = WP_Session_Tokens::get_instance( $user_id );
+		if ( \count( $sessions->get_all() ) <= 1 ) {
+			$user->set_role( '' );
+		}
+	}
+
 }

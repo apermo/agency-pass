@@ -31,6 +31,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `list_users` capability on the custom role (can view user list, cannot edit)
 - `map_meta_cap` filter to block emergency users from editing their own profile
 - Version-based role re-registration (capability updates without re-activation)
+- Existing admin detection — sends "you have an account" email instead of magic link
+- User profile UI showing Agency Pass managed status with TTL countdown
+- "End Session Now" button to immediately revoke role and destroy sessions
+- "Re-enroll" button for eligible users whose management was previously removed
+- Automatic promotion when admin changes a managed user's role
 - Playwright E2E test coverage including full magic link flow via Mailpit
 
 [Unreleased]: https://github.com/apermo/agency-pass/compare/v0.1.0...HEAD

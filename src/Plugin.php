@@ -79,6 +79,7 @@ class Plugin {
 
 		Role::ensure_exists();
 		Role::register_hooks();
+		UserProfile::register_hooks();
 
 		if ( ! AuditLog::has_available_logger() ) {
 			AdminNotice::register_hooks();
