@@ -92,6 +92,18 @@ ddev start && ddev orchestrate
 git config core.hooksPath .githooks
 ```
 
+## Known incompatibilities
+
+### NinjaFirewall
+
+NinjaFirewall blocks on-the-fly creation of users with elevated roles. Since Agency Pass creates temporary
+admin-level users via `wp_insert_user()`, NinjaFirewall will silently prevent emergency logins from working.
+
+The relevant NinjaFirewall hooks are `nfw_account_creation` (action on `pre_user_login`),
+`nfwhook_update_user_meta` and `nfwhook_add_user_meta` (filters on user meta operations). A bypass is
+possible by removing these hooks before user creation, but this is not recommended and not shipped with the
+plugin.
+
 ## Template Sync
 
 ```bash
