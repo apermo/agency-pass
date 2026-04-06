@@ -10,6 +10,6 @@ permissions:
 
 jobs:
     e2e:
-        uses: apermo/reusable-workflows/.github/workflows/reusable-wp-e2e.yml@main
+        uses: apermo/reusable-workflows/.github/workflows/reusable-wp-e2e.yml@feature/wp-env-e2e
         with:
-            use-ddev: true
+            wp-versions: '["latest", "6.2"]'

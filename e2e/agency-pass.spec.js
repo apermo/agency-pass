@@ -1,7 +1,5 @@
 const { test, expect } = require('@playwright/test');
-
-const MAILPIT_API = (process.env.WP_BASE_URL || 'https://agency-pass.ddev.site').replace(/:\d+$/, '') + ':8026/api/v1';
-const WP_CLI = 'ddev wp';
+const { MAILPIT_API, wpCli } = require('./helpers');
 
 test.describe('Agency Pass login form', () => {
     test.use({ storageState: { cookies: [], origins: [] } });
@@ -62,7 +60,20 @@ test.describe('Agency Pass login form', () => {
 });
 
 test.describe('Agency Pass full login flow', () => {
+    test.skip(!!process.env.CI, 'Requires Mailpit (DDEV only)');
     test.use({ storageState: { cookies: [], origins: [] } });
+
+    const flowEmail = 'flow-test@example.tld';
+
+    test.beforeAll(() => {
+        // Remove any stale user from previous runs.
+        try {
+            const userId = wpCli(`user get ${flowEmail} --field=ID`);
+            wpCli(`user delete ${userId} --yes`);
+        } catch {
+            // No stale user.
+        }
+    });
 
     test('magic link creates emergency user and logs in', async ({ page, request }) => {
         // Clear Mailpit inbox.
@@ -71,7 +82,7 @@ test.describe('Agency Pass full login flow', () => {
         // Request a magic link.
         await page.goto('/wp-login.php');
         await page.locator('#agency-pass-toggle').click();
-        await page.locator('#agency-pass-email').fill('e2e@example.tld');
+        await page.locator('#agency-pass-email').fill(flowEmail);
         await page.locator('#agency-pass-form input[type="submit"]').click();
         await page.waitForURL(/agency_pass=sent/);
 
@@ -80,7 +91,7 @@ test.describe('Agency Pass full login flow', () => {
         const body = await messages.json();
         expect(body.messages.length).toBeGreaterThan(0);
 
-        const mail = body.messages.find(m => m.To[0].Address === 'e2e@example.tld');
+        const mail = body.messages.find(m => m.To[0].Address === flowEmail);
         expect(mail).toBeDefined();
         expect(mail.Subject).toContain('emergency login link');
 

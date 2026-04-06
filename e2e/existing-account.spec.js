@@ -1,16 +1,14 @@
 const { test, expect } = require('@playwright/test');
-const { execSync } = require('child_process');
-
-const MAILPIT_API = (process.env.WP_BASE_URL || 'https://agency-pass.ddev.site').replace(/:\d+$/, '') + ':8026/api/v1';
-const run = (cmd) => execSync(`ddev wp ${cmd}`, { encoding: 'utf-8' }).trim();
+const { wpCli, MAILPIT_API } = require('./helpers');
 
 test.describe('Agency Pass with existing admin account', () => {
+    test.skip(!!process.env.CI, 'Requires Mailpit (DDEV only)');
     test.use({ storageState: { cookies: [], origins: [] } });
 
     test.beforeAll(() => {
         // Create a real admin user with an email matching the Agency Pass pattern.
         try {
-            run('user create realadmin realadmin@example.tld --role=administrator --user_pass=testpass123');
+            wpCli('user create realadmin realadmin@example.tld --role=administrator --user_pass=testpass123');
         } catch {
             // User may already exist from a previous run.
         }
@@ -18,7 +16,7 @@ test.describe('Agency Pass with existing admin account', () => {
 
     test.afterAll(() => {
         try {
-            run('user delete realadmin --yes');
+            wpCli('user delete realadmin --yes');
         } catch {
             // Already cleaned up.
         }

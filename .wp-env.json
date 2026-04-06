@@ -1,0 +1,6 @@
+{
+    "plugins": ["."],
+    "config": {
+        "AGENCY_PASS_EMAIL_PATTERN": "/^.+@example\\.tld$/"
+    }
+}

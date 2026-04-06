@@ -1,25 +1,23 @@
 const { test, expect } = require('@playwright/test');
-const { execSync } = require('child_process');
-
-const run = (cmd) => execSync(`ddev wp ${cmd}`, { encoding: 'utf-8' }).trim();
+const { wpCli } = require('./helpers');
 
 test.describe('Agency Pass user profile management', () => {
     let agencyUserId;
 
     test.beforeAll(() => {
         try {
-            agencyUserId = run('user create agencypass-profiletest profiletest@example.tld --role=agency_pass_admin --porcelain');
+            agencyUserId = wpCli('user create agencypass-profiletest profiletest@example.tld --role=agency_pass_admin --porcelain');
         } catch {
-            agencyUserId = run('user get agencypass-profiletest --field=ID');
+            agencyUserId = wpCli('user get agencypass-profiletest --field=ID');
         }
-        run(`user meta update ${agencyUserId} _agency_pass_user 1`);
+        wpCli(`user meta update ${agencyUserId} _agency_pass_user 1`);
         const expires = Math.floor(Date.now() / 1000) + 28800;
-        run(`user meta update ${agencyUserId} _agency_pass_expires ${expires}`);
+        wpCli(`user meta update ${agencyUserId} _agency_pass_expires ${expires}`);
     });
 
     test.afterAll(() => {
         try {
-            run(`user delete ${agencyUserId} --yes`);
+            wpCli(`user delete ${agencyUserId} --yes`);
         } catch {
             // Already deleted.
         }
@@ -40,7 +38,7 @@ test.describe('Agency Pass user profile management', () => {
 
         await expect(page).toHaveURL(/users\.php/);
 
-        const role = run(`user get ${agencyUserId} --field=roles`);
+        const role = wpCli(`user get ${agencyUserId} --field=roles`);
         expect(role).toBe('');
     });
 
@@ -56,13 +54,13 @@ test.describe('Agency Pass user profile management', () => {
 
     test('changing role promotes user and shows re-enroll', async ({ page }) => {
         // Changing role away from agency_pass_admin removes the meta marker.
-        run(`user set-role ${agencyUserId} agency_pass_admin`);
-        run(`user meta update ${agencyUserId} _agency_pass_user 1`);
+        wpCli(`user set-role ${agencyUserId} agency_pass_admin`);
+        wpCli(`user meta update ${agencyUserId} _agency_pass_user 1`);
         const expires = Math.floor(Date.now() / 1000) + 28800;
-        run(`user meta update ${agencyUserId} _agency_pass_expires ${expires}`);
+        wpCli(`user meta update ${agencyUserId} _agency_pass_expires ${expires}`);
 
         // Now change to editor — triggers profile_update which removes meta.
-        run(`user set-role ${agencyUserId} editor`);
+        wpCli(`user set-role ${agencyUserId} editor`);
 
         await page.goto(`/wp-admin/user-edit.php?user_id=${agencyUserId}`);
 
@@ -77,7 +75,7 @@ test.describe('Agency Pass user profile management', () => {
 
         await expect(page).toHaveURL(new RegExp(`user-edit\\.php.*user_id=${agencyUserId}`));
 
-        const role = run(`user get ${agencyUserId} --field=roles`);
+        const role = wpCli(`user get ${agencyUserId} --field=roles`);
         expect(role).toContain('agency_pass_admin');
         await expect(page.locator('text=managed by Agency Pass')).toBeVisible();
     });

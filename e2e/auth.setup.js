@@ -1,7 +1,7 @@
 const { test } = require('@playwright/test');
 
 const WP_ADMIN_USER = process.env.WP_ADMIN_USER || 'admin';
-const WP_ADMIN_PASSWORD = process.env.WP_ADMIN_PASSWORD || 'admin';
+const WP_ADMIN_PASSWORD = process.env.WP_ADMIN_PASSWORD || (process.env.CI ? 'password' : 'admin');
 
 test('authenticate as admin', async ({ page }) => {
     await page.goto('/wp-login.php');
