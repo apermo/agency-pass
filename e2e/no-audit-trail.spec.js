@@ -21,7 +21,7 @@ test.describe('Agency Pass without audit trail plugin', () => {
 
     test('shows missing audit plugin warning in wp-admin', async ({ page }) => {
         await page.goto('/wp-admin/');
-        const notice = page.locator('.notice-warning');
+        const notice = page.locator('.notice-warning', { hasText: 'Agency Pass' });
         await expect(notice).toContainText('audit trail plugin');
     });
 });

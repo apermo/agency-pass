@@ -47,4 +47,15 @@ module.exports = async function globalSetup() {
             );
         }
     }
+
+    // Ensure admin email matches the email pattern so profile actions work.
+    try {
+        const email = run('user get 1 --field=user_email');
+        if (!email.endsWith('@example.tld')) {
+            console.log('Updating admin email to match pattern...');
+            execSync(`${wp} user update 1 --user_email=admin@example.tld --skip-email`, { stdio: 'inherit' });
+        }
+    } catch {
+        // Ignore if user update fails.
+    }
 };
