@@ -20,6 +20,13 @@ module.exports = async function globalSetup() {
         // Already active.
     }
 
+    // Skip the WSAL Freemius opt-in wizard so it doesn't intercept admin pages.
+    try {
+        run('option update fs_wsalp skip');
+    } catch {
+        // Ignore.
+    }
+
     // In CI, AGENCY_PASS_EMAIL_PATTERN is set via .wp-env.json config.
     // For local DDEV, ensure it's in wp-config.php.
     if (!process.env.CI) {

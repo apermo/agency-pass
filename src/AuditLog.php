@@ -67,7 +67,7 @@ class AuditLog {
 	 */
 	public static function fallback_link_requested( string $email, string $ip, bool $matched ): void {
 		$status = $matched ? 'matched' : 'rejected';
-		\error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		\error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Intentional fallback logging.
 			\sprintf(
 				'[Agency Pass] Magic link requested: email=%s, ip=%s, status=%s',
 				$email,
@@ -87,7 +87,7 @@ class AuditLog {
 	 * @return void
 	 */
 	public static function fallback_login( string $email, string $username, string $ip ): void {
-		\error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		\error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Intentional fallback logging.
 			\sprintf(
 				'[Agency Pass] Emergency login: email=%s, user=%s, ip=%s',
 				$email,
@@ -105,7 +105,7 @@ class AuditLog {
 	 * @return void
 	 */
 	public static function fallback_user_cleanup( string $username ): void {
-		\error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		\error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Intentional fallback logging.
 			\sprintf(
 				'[Agency Pass] User expired and cleaned up: user=%s',
 				$username,

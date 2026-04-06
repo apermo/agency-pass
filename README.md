@@ -41,7 +41,7 @@ define( 'AGENCY_PASS_EMAIL_PATTERN', '/^.+@youragency\.de$/' );
 
 ```php
 define( 'AGENCY_PASS_TOKEN_TTL', 900 );    // Magic link validity in seconds (default: 15 min)
-define( 'AGENCY_PASS_USER_TTL', 86400 );   // Temporary user lifetime in seconds (default: 24 h)
+define( 'AGENCY_PASS_USER_TTL', 28800 );   // Temporary user lifetime in seconds (default: 8 h)
 ```
 
 ## How it works
@@ -57,7 +57,10 @@ define( 'AGENCY_PASS_USER_TTL', 86400 );   // Temporary user lifetime in seconds
 The `agency_pass_admin` role has all administrator capabilities except:
 
 - `edit_users`, `delete_users`, `create_users`
-- `list_users`, `promote_users`, `remove_users`
+- `promote_users`, `remove_users`
+
+The role retains `list_users` (can view the user list). Emergency users are blocked from editing their own
+profile via `map_meta_cap`.
 
 ## Extensibility
 

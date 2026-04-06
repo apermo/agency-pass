@@ -48,7 +48,7 @@ class RequestHandler {
 		 * @param string $ip    The requesting IP address.
 		 * @param bool   $matched Whether the email matched the allowed pattern.
 		 */
-		do_action( 'agency_pass_link_requested', $email, $ip, $matched ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+		do_action( 'agency_pass_link_requested', $email, $ip, $matched ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Public API hook.
 
 		if ( $matched ) {
 			/*
@@ -85,7 +85,7 @@ class RequestHandler {
 		 * @param string   $email The email address that was rejected.
 		 * @param WP_Error $error The error object.
 		 */
-		do_action( 'wp_login_failed', $email, $error ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+		do_action( 'wp_login_failed', $email, $error ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Public API hook.
 		self::redirect_with_result( 'rejected' );
 	}
 
@@ -95,7 +95,7 @@ class RequestHandler {
 	 * @return void
 	 */
 	public static function handle_login(): void {
-		$token_string = sanitize_text_field( wp_unslash( $_GET['token'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$token_string = sanitize_text_field( wp_unslash( $_GET['token'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Token is the auth mechanism, not a nonce.
 
 		if ( $token_string === '' ) {
 			wp_die(
@@ -143,7 +143,7 @@ class RequestHandler {
 		 * @param string $username The username created or reused.
 		 * @param string $ip     The requesting IP address.
 		 */
-		do_action( 'agency_pass_login', $email, $user->user_login, $ip ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+		do_action( 'agency_pass_login', $email, $user->user_login, $ip ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Public API hook.
 
 		wp_safe_redirect( admin_url() );
 		exit();
@@ -187,7 +187,7 @@ class RequestHandler {
 			 *
 			 * @return bool
 			 */
-			$matched = apply_filters( 'agency_pass_email_allowed', true, $email ) === true; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+			$matched = apply_filters( 'agency_pass_email_allowed', true, $email ) === true; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Public API hook.
 		}
 
 		return $matched;

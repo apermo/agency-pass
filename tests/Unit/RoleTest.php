@@ -24,6 +24,7 @@ class RoleTest extends TestCase {
 	protected function setUp(): void {
 		parent::setUp();
 		Monkey\setUp();
+		Functions\stubTranslationFunctions();
 	}
 
 	/**

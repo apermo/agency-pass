@@ -6,8 +6,19 @@ test.describe('Agency Pass without audit trail plugin', () => {
         wpCli('plugin deactivate wp-security-audit-log');
     });
 
-    test.afterAll(() => {
+    test.afterAll(async ({ browser }) => {
         wpCli('plugin activate wp-security-audit-log');
+        try {
+            wpCli('option update fs_wsalp skip');
+        } catch {
+            // Ignore.
+        }
+        // Visit WSAL page to clear its activation redirect.
+        const ctx = await browser.newContext({ ignoreHTTPSErrors: true, storageState: '.auth/admin.json' });
+        const page = await ctx.newPage();
+        await page.goto('/wp-admin/admin.php?page=wsal-auditlog');
+        await page.waitForTimeout(1000);
+        await ctx.close();
     });
 
     test('does not show Agency Pass button on login page', async ({ browser }) => {

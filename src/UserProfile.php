@@ -75,7 +75,7 @@ class UserProfile {
 	 * @return void
 	 */
 	public static function handle_reenroll(): void {
-		$user_id = (int) sanitize_text_field( wp_unslash( $_REQUEST['user_id'] ?? '0' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$user_id = (int) sanitize_text_field( wp_unslash( $_REQUEST['user_id'] ?? '0' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nonce verified immediately after.
 
 		if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_REQUEST['_wpnonce'] ?? '' ) ), 'agency_pass_reenroll_' . $user_id ) ) {
 			wp_die(
@@ -116,7 +116,7 @@ class UserProfile {
 	 * @return void
 	 */
 	public static function handle_end_session(): void {
-		$user_id = (int) sanitize_text_field( wp_unslash( $_REQUEST['user_id'] ?? '0' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$user_id = (int) sanitize_text_field( wp_unslash( $_REQUEST['user_id'] ?? '0' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nonce verified immediately after.
 
 		if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_REQUEST['_wpnonce'] ?? '' ) ), 'agency_pass_end_session_' . $user_id ) ) {
 			wp_die(
@@ -269,7 +269,7 @@ class UserProfile {
 		 *
 		 * @return bool
 		 */
-		return apply_filters( 'agency_pass_email_allowed', true, $email ) === true; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+		return apply_filters( 'agency_pass_email_allowed', true, $email ) === true; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Public API hook.
 	}
 
 	/**

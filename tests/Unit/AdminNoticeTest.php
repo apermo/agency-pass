@@ -58,15 +58,13 @@ class AdminNoticeTest extends TestCase {
 			->with( 'manage_options' )
 			->andReturn( false );
 
-		\ob_start();
-		AdminNotice::missing_audit_logger();
-		$output = \ob_get_clean();
+		Functions\expect( 'wp_admin_notice' )->never();
 
-		$this->assertSame( '', $output );
+		AdminNotice::missing_audit_logger();
 	}
 
 	/**
-	 * Verify notice is shown to admins.
+	 * Verify notice is shown to admins via wp_admin_notice.
 	 *
 	 * @return void
 	 */
@@ -78,18 +76,19 @@ class AdminNoticeTest extends TestCase {
 
 		Functions\stubs(
 			[
-				'esc_html_e' => static function ( string $text ): void {
-					echo esc_html( $text ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- test stub
-				},
-				'esc_html' => static fn( string $text ): string => $text,
+				'esc_html__' => static fn( string $text ): string => $text,
 			],
 		);
 
-		\ob_start();
-		AdminNotice::missing_audit_logger();
-		$output = \ob_get_clean();
+		Functions\expect( 'wp_admin_notice' )
+			->once()
+			->withArgs(
+				static function ( string $message, array $args ): bool {
+					return \str_contains( $message, 'audit trail plugin' )
+						&& $args['type'] === 'warning';
+				},
+			);
 
-		$this->assertStringContainsString( 'notice-warning', $output );
-		$this->assertStringContainsString( 'audit trail plugin', $output );
+		AdminNotice::missing_audit_logger();
 	}
 }

@@ -1,5 +1,5 @@
 const { test, expect } = require('@playwright/test');
-const { wpCli } = require('./helpers');
+const { wpCli, dismissWsalWizard } = require('./helpers');
 
 test.describe('Agency Pass user profile management', () => {
     let agencyUserId;
@@ -25,6 +25,7 @@ test.describe('Agency Pass user profile management', () => {
 
     test('shows managed status on agency pass user profile', async ({ page }) => {
         await page.goto(`/wp-admin/user-edit.php?user_id=${agencyUserId}`);
+        await dismissWsalWizard(page);
 
         await expect(page.locator('h2', { hasText: 'Agency Pass' })).toBeVisible();
         await expect(page.locator('text=managed by Agency Pass')).toBeVisible();

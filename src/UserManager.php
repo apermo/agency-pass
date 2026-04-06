@@ -48,8 +48,8 @@ class UserManager {
 			[
 				'search'         => $email,
 				'search_columns' => [ 'user_email' ],
-				'meta_key'       => self::META_MARKER, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
-				'meta_value'     => '1', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+				'meta_key'       => self::META_MARKER, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Required for user identification.
+				'meta_value'     => '1', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Required for user identification.
 				'number'         => 1,
 				'fields'         => 'ID',
 			],
@@ -132,8 +132,8 @@ class UserManager {
 	public static function expire_users(): void {
 		$users = get_users(
 			[
-				'meta_key'   => self::META_MARKER, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
-				'meta_value' => '1', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+				'meta_key'   => self::META_MARKER, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Required for user identification.
+				'meta_value' => '1', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Required for user identification.
 				'role'       => Role::ROLE_NAME,
 				'fields'     => 'ID',
 			],
@@ -153,7 +153,7 @@ class UserManager {
 					 *
 					 * @param string $username The username that was expired.
 					 */
-					do_action( 'agency_pass_user_cleanup', $user->user_login ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+					do_action( 'agency_pass_user_cleanup', $user->user_login ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Public API hook.
 				}
 			}
 		}
@@ -167,8 +167,8 @@ class UserManager {
 	public static function revoke_all(): void {
 		$users = get_users(
 			[
-				'meta_key'   => self::META_MARKER, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
-				'meta_value' => '1', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+				'meta_key'   => self::META_MARKER, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Required for user identification.
+				'meta_value' => '1', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Required for user identification.
 				'fields'     => 'ID',
 			],
 		);

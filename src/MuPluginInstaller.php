@@ -24,7 +24,7 @@ class MuPluginInstaller {
 			wp_mkdir_p( $target_dir );
 		}
 
-		\file_put_contents( $target, self::loader_content() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+		\file_put_contents( $target, self::loader_content() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents -- Direct filesystem write for mu-loader.
 	}
 
 	/**
@@ -36,7 +36,7 @@ class MuPluginInstaller {
 		$target = self::loader_path();
 
 		if ( \file_exists( $target ) ) {
-			\unlink( $target ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
+			\unlink( $target ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink -- Direct filesystem delete for mu-loader.
 		}
 	}
 

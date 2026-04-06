@@ -34,4 +34,17 @@ function wpCliExec(cmd) {
     execSync(`${WP_CLI} ${cmd}`, { stdio: 'inherit' });
 }
 
-module.exports = { wpCli, wpCliExec, WP_CLI, MAILPIT_API };
+/**
+ * Dismiss the WSAL setup wizard if it appears.
+ *
+ * @param {import('@playwright/test').Page} page
+ */
+async function dismissWsalWizard(page) {
+    const modal = page.locator('.fs-modal-footer .button-deactivate, .fs-modal [data-action="skip"]');
+    if (await modal.isVisible({ timeout: 2000 }).catch(() => false)) {
+        await modal.click();
+        await page.waitForTimeout(500);
+    }
+}
+
+module.exports = { wpCli, wpCliExec, dismissWsalWizard, WP_CLI, MAILPIT_API };
