@@ -12,7 +12,6 @@ module.exports = async function globalSetup() {
     } catch {
         console.log('Installing WP Activity Log...');
         execSync(`${wp} plugin install wp-security-audit-log --activate`, { stdio: 'inherit' });
-        return;
     }
 
     try {
