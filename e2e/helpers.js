@@ -1,6 +1,16 @@
 const { execSync } = require('child_process');
 
-const WP_CLI = process.env.CI ? 'npx wp-env run cli wp' : 'ddev wp';
+/**
+ * Detect the WP-CLI command for the current environment.
+ *
+ * CI installs @wordpress/env globally (available as wp-env).
+ * Locally, prefer ddev wp if WP_BASE_URL points to DDEV, otherwise use @wordpress/env.
+ */
+const WP_CLI = process.env.CI
+    ? 'npx wp-env run cli wp'
+    : (process.env.WP_BASE_URL || '').includes('localhost:8888')
+        ? 'npx @wordpress/env run cli wp'
+        : 'ddev wp';
 const MAILPIT_API = process.env.MAILPIT_API_URL
     ? process.env.MAILPIT_API_URL + '/api/v1'
     : (process.env.WP_BASE_URL || 'https://agency-pass.ddev.site').replace(/:\d+$/, '') + ':8026/api/v1';

@@ -1,19 +1,6 @@
 const { execSync } = require('child_process');
-
-/**
- * Detect the WP-CLI command prefix for the current environment.
- *
- * CI uses wp-env, local dev uses DDEV.
- */
-function wpCli() {
-    if (process.env.CI) {
-        return 'npx wp-env run cli wp';
-    }
-    return 'ddev wp';
-}
-
-const wp = wpCli();
-const run = (cmd) => execSync(`${wp} ${cmd}`, { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
+const { WP_CLI, wpCli: run } = require('./helpers');
+const wp = WP_CLI;
 
 /**
  * Install and activate WP Activity Log, and ensure AGENCY_PASS_EMAIL_PATTERN is set.
@@ -49,13 +36,15 @@ module.exports = async function globalSetup() {
     }
 
     // Ensure admin email matches the email pattern so profile actions work.
+    console.log('Checking admin email...');
     try {
         const email = run('user get 1 --field=user_email');
+        console.log('Current admin email:', email);
         if (!email.endsWith('@example.tld')) {
             console.log('Updating admin email to match pattern...');
-            execSync(`${wp} user update 1 --user_email=admin@example.tld --skip-email`, { stdio: 'inherit' });
+            execSync(`${wp} user update 1 --user_email=admin@example.tld`, { stdio: 'inherit' });
         }
-    } catch {
-        // Ignore if user update fails.
+    } catch (err) {
+        console.log('Admin email update failed:', err.message);
     }
 };
