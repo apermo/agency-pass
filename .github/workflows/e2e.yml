@@ -13,3 +13,4 @@ jobs:
         uses: apermo/reusable-workflows/.github/workflows/reusable-wp-e2e.yml@feature/wp-env-e2e
         with:
             wp-versions: '["latest", "6.2"]'
+            mailpit: true

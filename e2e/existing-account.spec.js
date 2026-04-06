@@ -2,7 +2,6 @@ const { test, expect } = require('@playwright/test');
 const { wpCli, MAILPIT_API } = require('./helpers');
 
 test.describe('Agency Pass with existing admin account', () => {
-    test.skip(!!process.env.CI, 'Requires Mailpit (DDEV only)');
     test.use({ storageState: { cookies: [], origins: [] } });
 
     test.beforeAll(() => {

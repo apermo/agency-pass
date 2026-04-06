@@ -1,7 +1,9 @@
 const { execSync } = require('child_process');
 
 const WP_CLI = process.env.CI ? 'npx wp-env run cli wp' : 'ddev wp';
-const MAILPIT_API = (process.env.WP_BASE_URL || 'https://agency-pass.ddev.site').replace(/:\d+$/, '') + ':8026/api/v1';
+const MAILPIT_API = process.env.MAILPIT_API_URL
+    ? process.env.MAILPIT_API_URL + '/api/v1'
+    : (process.env.WP_BASE_URL || 'https://agency-pass.ddev.site').replace(/:\d+$/, '') + ':8026/api/v1';
 
 /**
  * Run a WP-CLI command and return the trimmed output.

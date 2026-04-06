@@ -60,7 +60,6 @@ test.describe('Agency Pass login form', () => {
 });
 
 test.describe('Agency Pass full login flow', () => {
-    test.skip(!!process.env.CI, 'Requires Mailpit (DDEV only)');
     test.use({ storageState: { cookies: [], origins: [] } });
 
     const flowEmail = 'flow-test@example.tld';
