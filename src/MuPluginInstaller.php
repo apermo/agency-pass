@@ -12,7 +12,7 @@ class MuPluginInstaller {
 	private const LOADER_FILENAME = 'agency-pass-loader.php';
 
 	/**
-	 * Install the mu-plugin loader.
+	 * Installs the mu-plugin loader.
 	 *
 	 * @return void
 	 */
@@ -28,7 +28,7 @@ class MuPluginInstaller {
 	}
 
 	/**
-	 * Remove the mu-plugin loader.
+	 * Removes the mu-plugin loader.
 	 *
 	 * @return void
 	 */
@@ -41,7 +41,7 @@ class MuPluginInstaller {
 	}
 
 	/**
-	 * Return the full path to the mu-plugin loader file.
+	 * Returns the full path to the mu-plugin loader file.
 	 *
 	 * @return string
 	 */
@@ -50,7 +50,7 @@ class MuPluginInstaller {
 	}
 
 	/**
-	 * Generate the mu-plugin loader PHP content.
+	 * Generates the mu-plugin loader PHP content.
 	 *
 	 * @return string
 	 */

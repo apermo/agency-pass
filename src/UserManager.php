@@ -14,7 +14,7 @@ class UserManager {
 	private const DEFAULT_TTL  = 28800; // 8 hours (one work day).
 
 	/**
-	 * Create or reuse a temporary emergency user for the given email.
+	 * Creates or reuses a temporary emergency user for the given email.
 	 *
 	 * If an active (non-expired) user already exists for this email, reuse it
 	 * and extend the TTL.
@@ -35,7 +35,7 @@ class UserManager {
 	}
 
 	/**
-	 * Find an existing non-expired emergency user by email.
+	 * Finds an existing non-expired emergency user by email.
 	 *
 	 * If an expired user is found, revoke its role instead of deleting it.
 	 *
@@ -71,7 +71,7 @@ class UserManager {
 	}
 
 	/**
-	 * Create a new temporary emergency user.
+	 * Creates a new temporary emergency user.
 	 *
 	 * @param string $email The requesting user's email address.
 	 *
@@ -109,7 +109,7 @@ class UserManager {
 	}
 
 	/**
-	 * Extend the TTL of an existing emergency user.
+	 * Extends the TTL of an existing emergency user.
 	 *
 	 * @param int $user_id The user ID to extend.
 	 *
@@ -125,7 +125,7 @@ class UserManager {
 	}
 
 	/**
-	 * Revoke the role of all expired emergency users.
+	 * Revokes the role of all expired emergency users.
 	 *
 	 * @return void
 	 */
@@ -160,7 +160,7 @@ class UserManager {
 	}
 
 	/**
-	 * Revoke the role of all emergency users (for deactivation).
+	 * Revokes the role of all emergency users (for deactivation).
 	 *
 	 * @return void
 	 */
@@ -179,7 +179,7 @@ class UserManager {
 	}
 
 	/**
-	 * Remove the agency pass role from a user, leaving them with no role.
+	 * Removes the agency pass role from a user, leaving them with no role.
 	 *
 	 * @param int $user_id The user ID.
 	 *
@@ -193,7 +193,7 @@ class UserManager {
 	}
 
 	/**
-	 * Generate a username from an email address.
+	 * Generates a username from an email address.
 	 *
 	 * @param string $email The email address.
 	 *
@@ -210,7 +210,7 @@ class UserManager {
 	}
 
 	/**
-	 * Return the configured user TTL in seconds.
+	 * Returns the configured user TTL in seconds.
 	 *
 	 * @return int
 	 */

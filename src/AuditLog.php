@@ -22,7 +22,7 @@ class AuditLog {
 	];
 
 	/**
-	 * Check whether at least one registered logger's backing plugin is active.
+	 * Checks whether at least one registered logger's backing plugin is active.
 	 *
 	 * @return bool
 	 */
@@ -37,7 +37,7 @@ class AuditLog {
 	}
 
 	/**
-	 * Register hooks on all available loggers.
+	 * Registers hooks on all available loggers.
 	 *
 	 * Always logs to error_log() as a fallback regardless of logger availability.
 	 *
@@ -57,7 +57,7 @@ class AuditLog {
 	}
 
 	/**
-	 * Fallback: log magic link request to error_log.
+	 * Logs a magic link request to error_log as fallback.
 	 *
 	 * @param string $email   The requesting email address.
 	 * @param string $ip      The requesting IP address.
@@ -78,7 +78,7 @@ class AuditLog {
 	}
 
 	/**
-	 * Fallback: log emergency login to error_log.
+	 * Logs an emergency login to error_log as fallback.
 	 *
 	 * @param string $email    The email address used.
 	 * @param string $username The username created or reused.
@@ -98,7 +98,7 @@ class AuditLog {
 	}
 
 	/**
-	 * Fallback: log user cleanup to error_log.
+	 * Logs user cleanup to error_log as fallback.
 	 *
 	 * @param string $username The username that was cleaned up.
 	 *

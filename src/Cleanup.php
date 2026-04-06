@@ -12,7 +12,7 @@ class Cleanup {
 	public const CRON_HOOK = 'agency_pass_cleanup';
 
 	/**
-	 * Schedule the hourly cleanup cron event.
+	 * Schedules the hourly cleanup cron event.
 	 *
 	 * @return void
 	 */
@@ -23,7 +23,7 @@ class Cleanup {
 	}
 
 	/**
-	 * Unschedule the cleanup cron event.
+	 * Unschedules the cleanup cron event.
 	 *
 	 * @return void
 	 */
@@ -35,7 +35,7 @@ class Cleanup {
 	}
 
 	/**
-	 * Register hooks for cleanup.
+	 * Registers hooks for cleanup.
 	 *
 	 * @return void
 	 */
@@ -47,7 +47,7 @@ class Cleanup {
 	}
 
 	/**
-	 * Run the cleanup.
+	 * Runs the cleanup.
 	 *
 	 * @return void
 	 */
@@ -56,7 +56,7 @@ class Cleanup {
 	}
 
 	/**
-	 * Run cleanup on init if cron hasn't fired recently.
+	 * Runs cleanup on init if cron hasn't fired recently.
 	 *
 	 * Uses a transient to throttle init-based cleanup to once per hour.
 	 *

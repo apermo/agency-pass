@@ -20,7 +20,7 @@ class Role {
 	];
 
 	/**
-	 * Register hooks for capability filtering.
+	 * Registers hooks for capability filtering.
 	 *
 	 * @return void
 	 */
@@ -29,7 +29,7 @@ class Role {
 	}
 
 	/**
-	 * Prevent agency pass users from editing their own profile.
+	 * Prevents agency pass users from editing their own profile.
 	 *
 	 * @param string[] $caps       Primitive capabilities required.
 	 * @param string   $capability Meta capability being checked.
@@ -58,7 +58,7 @@ class Role {
 	}
 
 	/**
-	 * Register the custom role by cloning administrator and removing user-management caps.
+	 * Registers the custom role by cloning administrator and removing user-management caps.
 	 *
 	 * @return void
 	 */
@@ -75,13 +75,13 @@ class Role {
 
 		add_role(
 			self::ROLE_NAME,
-			'Agency Pass Admin',
+			esc_html__( 'Agency Pass Admin', 'agency-pass' ),
 			$capabilitys,
 		);
 	}
 
 	/**
-	 * Remove the custom role.
+	 * Removes the custom role.
 	 *
 	 * @return void
 	 */
@@ -90,7 +90,7 @@ class Role {
 	}
 
 	/**
-	 * Ensure the role exists and is up to date.
+	 * Ensures the role exists and is up to date.
 	 *
 	 * Uses a version option to detect capability changes and re-register
 	 * without requiring manual re-activation.

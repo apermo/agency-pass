@@ -13,14 +13,14 @@ namespace Agency_Pass;
 interface AuditLoggerInterface {
 
 	/**
-	 * Check whether the backing audit trail plugin is installed and active.
+	 * Checks whether the backing audit trail plugin is installed and active.
 	 *
 	 * @return bool
 	 */
 	public static function is_available(): bool;
 
 	/**
-	 * Register hooks to capture Agency Pass events.
+	 * Registers hooks to capture Agency Pass events.
 	 *
 	 * @return void
 	 */

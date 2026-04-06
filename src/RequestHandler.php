@@ -13,18 +13,18 @@ use WP_Session_Tokens;
 class RequestHandler {
 
 	/**
-	 * Register hooks for request handling.
+	 * Registers hooks for request handling.
 	 *
 	 * @return void
 	 */
 	public static function register_hooks(): void {
 		add_action( 'admin_post_nopriv_agency_pass_request', [ self::class, 'handle_request' ] );
 		add_action( 'admin_post_nopriv_agency_pass_login', [ self::class, 'handle_login' ] );
-		add_action( 'wp_logout', [ self::class, 'maybe_revoke_on_logout' ] );
+		add_action( 'wp_logout', [ self::class, 'maybe_revoke_on_logout' ], 10, 1 );
 	}
 
 	/**
-	 * Handle the magic link request form submission.
+	 * Handles the magic link request form submission.
 	 *
 	 * @return void
 	 */
@@ -51,10 +51,14 @@ class RequestHandler {
 		do_action( 'agency_pass_link_requested', $email, $ip, $matched ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 
 		if ( $matched ) {
-			// If a non-managed user with this email already exists, send them
-			// a "you have an account" email instead of a magic link.
-			$existing = get_user_by( 'email', $email );
-			if ( $existing !== false && (string) get_user_meta( $existing->ID, '_agency_pass_user', true ) === '' ) {
+			/*
+			 * If a non-managed user with this email already exists, send them
+			 * a "you have an account" email instead of a magic link.
+			 */
+			$existing        = get_user_by( 'email', $email );
+			$is_regular_user = $existing !== false
+				&& (string) get_user_meta( $existing->ID, '_agency_pass_user', true ) === '';
+			if ( $is_regular_user ) {
 				self::send_existing_account_email( $email );
 				self::redirect_with_result( 'sent' );
 			}
@@ -86,7 +90,7 @@ class RequestHandler {
 	}
 
 	/**
-	 * Handle the magic link login.
+	 * Handles the magic link login.
 	 *
 	 * @return void
 	 */
@@ -125,7 +129,7 @@ class RequestHandler {
 		}
 
 		// Limit cookie lifetime to the user TTL.
-		$cookie_filter = static fn(): int => UserManager::ttl();
+		$cookie_filter = static fn( int $expiration ): int => UserManager::ttl();
 		add_filter( 'auth_cookie_expiration', $cookie_filter );
 		wp_set_auth_cookie( $user_id, false );
 		remove_filter( 'auth_cookie_expiration', $cookie_filter );
@@ -146,7 +150,7 @@ class RequestHandler {
 	}
 
 	/**
-	 * Check whether strict mode is enabled.
+	 * Checks whether strict mode is enabled.
 	 *
 	 * When enabled, the plugin never reveals whether an email matched.
 	 *
@@ -157,7 +161,7 @@ class RequestHandler {
 	}
 
 	/**
-	 * Check whether the given email is allowed.
+	 * Checks whether the given email is allowed.
 	 *
 	 * @param string $email The email to check.
 	 *
@@ -190,7 +194,7 @@ class RequestHandler {
 	}
 
 	/**
-	 * Send the magic login link via wp_mail().
+	 * Sends the magic login link via wp_mail().
 	 *
 	 * @param string $email The recipient email.
 	 * @param string $token The magic link token.
@@ -228,7 +232,7 @@ class RequestHandler {
 	}
 
 	/**
-	 * Send an email to an existing (non-managed) user who tried Agency Pass.
+	 * Sends an email to an existing (non-managed) user who tried Agency Pass.
 	 *
 	 * @param string $email The recipient email.
 	 *
@@ -257,7 +261,7 @@ class RequestHandler {
 	}
 
 	/**
-	 * Redirect back to the login page with a result indicator.
+	 * Redirects back to the login page with a result indicator.
 	 *
 	 * @param string $result Either 'sent' or 'rejected'.
 	 *
@@ -275,13 +279,20 @@ class RequestHandler {
 	}
 
 	/**
-	 * Revoke the agency pass role on logout if no other sessions remain.
+	 * Revokes the agency pass role on logout if no other sessions remain.
+	 *
+	 * The $user_id parameter is passed by wp_logout since WP 6.6.
+	 * For older versions, fall back to get_current_user_id().
 	 *
 	 * @param int $user_id The ID of the user logging out.
 	 *
 	 * @return void
 	 */
-	public static function maybe_revoke_on_logout( int $user_id ): void {
+	public static function maybe_revoke_on_logout( int $user_id = 0 ): void {
+		if ( $user_id === 0 ) {
+			$user_id = get_current_user_id();
+		}
+
 		$user = get_userdata( $user_id );
 		if ( $user === false || ! \in_array( Role::ROLE_NAME, $user->roles, true ) ) {
 			return;

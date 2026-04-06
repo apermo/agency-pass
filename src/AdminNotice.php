@@ -10,7 +10,7 @@ namespace Agency_Pass;
 class AdminNotice {
 
 	/**
-	 * Register the admin notice hook.
+	 * Registers the admin notice hook.
 	 *
 	 * @return void
 	 */
@@ -19,7 +19,7 @@ class AdminNotice {
 	}
 
 	/**
-	 * Show a warning when no audit trail plugin is active.
+	 * Shows a warning when no audit trail plugin is active.
 	 *
 	 * @return void
 	 */
@@ -28,18 +28,19 @@ class AdminNotice {
 			return;
 		}
 
-		?>
-		<div class="notice notice-warning">
-			<p>
-				<strong><?php esc_html_e( 'Agency Pass:', 'agency-pass' ); ?></strong>
-				<?php
-				esc_html_e(
+		wp_admin_notice(
+			\sprintf(
+				'<strong>%s</strong> %s',
+				esc_html__( 'Agency Pass:', 'agency-pass' ),
+				esc_html__(
 					'An audit trail plugin (e.g. WP Activity Log) is required. Emergency login is disabled until one is installed and activated.',
 					'agency-pass',
-				);
-				?>
-			</p>
-		</div>
-		<?php
+				),
+			),
+			[
+				'type'           => 'warning',
+				'paragraph_wrap' => true,
+			],
+		);
 	}
 }

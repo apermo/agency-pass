@@ -13,7 +13,7 @@ use WP_User;
 class UserProfile {
 
 	/**
-	 * Register hooks for the user profile UI.
+	 * Registers hooks for the user profile UI.
 	 *
 	 * @return void
 	 */
@@ -25,14 +25,14 @@ class UserProfile {
 	}
 
 	/**
-	 * Render the Agency Pass status section on a user's profile.
+	 * Renders the Agency Pass status section on a user's profile.
 	 *
 	 * @param WP_User $user The user being edited.
 	 *
 	 * @return void
 	 */
 	public static function render_status( WP_User $user ): void {
-		$is_managed = (bool) get_user_meta( $user->ID, '_agency_pass_user', true );
+		$is_managed = get_user_meta( $user->ID, '_agency_pass_user', true ) === '1';
 
 		if ( $is_managed ) {
 			self::render_managed_status( $user );
@@ -45,7 +45,7 @@ class UserProfile {
 	}
 
 	/**
-	 * Handle role changes — promote user if role changed away from agency_pass_admin.
+	 * Handles role changes — promotes user if role changed away from agency_pass_admin.
 	 *
 	 * Hooked to `set_user_role` which fires on every role change.
 	 *
@@ -70,7 +70,7 @@ class UserProfile {
 	}
 
 	/**
-	 * Handle the re-enroll action.
+	 * Handles the re-enroll action.
 	 *
 	 * @return void
 	 */
@@ -111,7 +111,7 @@ class UserProfile {
 	}
 
 	/**
-	 * Handle the end session action.
+	 * Handles the end session action.
 	 *
 	 * @return void
 	 */
@@ -145,14 +145,14 @@ class UserProfile {
 	}
 
 	/**
-	 * Render the managed status info box with TTL and end-session button.
+	 * Renders the managed status info box with TTL and end-session button.
 	 *
 	 * @param WP_User $user The managed user.
 	 *
 	 * @return void
 	 */
 	private static function render_managed_status( WP_User $user ): void {
-		$expires = (int) get_user_meta( $user->ID, '_agency_pass_expires', true );
+		$expires   = (int) get_user_meta( $user->ID, '_agency_pass_expires', true );
 		$remaining = $expires - \time();
 		$hours     = (int) \floor( $remaining / 3600 );
 		$minutes   = (int) \ceil( ( $remaining % 3600 ) / 60 );
@@ -203,7 +203,7 @@ class UserProfile {
 	}
 
 	/**
-	 * Render the re-enroll button for a previously managed user.
+	 * Renders the re-enroll button for a previously managed user.
 	 *
 	 * @param WP_User $user The user to re-enroll.
 	 *
@@ -243,7 +243,7 @@ class UserProfile {
 	}
 
 	/**
-	 * Check whether an email is eligible for Agency Pass enrollment.
+	 * Checks whether an email is eligible for Agency Pass enrollment.
 	 *
 	 * @param string $email The email to check.
 	 *
@@ -273,7 +273,7 @@ class UserProfile {
 	}
 
 	/**
-	 * Check whether the current user's email is eligible for Agency Pass.
+	 * Checks whether the current user's email is eligible for Agency Pass.
 	 *
 	 * @return bool
 	 */

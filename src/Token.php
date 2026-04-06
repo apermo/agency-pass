@@ -12,7 +12,7 @@ class Token {
 	private const TRANSIENT_PREFIX = 'agency_pass_token_';
 
 	/**
-	 * Generate a new magic-link token for the given email.
+	 * Generates a new magic-link token for the given email.
 	 *
 	 * @param string $email   Requesting user's email address.
 	 * @param string $ip Requesting user's IP address.
@@ -36,7 +36,7 @@ class Token {
 	}
 
 	/**
-	 * Validate and consume a token.
+	 * Validates and consumes a token.
 	 *
 	 * Tokens are single-use — deleted immediately after successful validation.
 	 *
@@ -59,7 +59,7 @@ class Token {
 	}
 
 	/**
-	 * Return the configured token TTL in seconds.
+	 * Returns the configured token TTL in seconds.
 	 *
 	 * @return int
 	 */

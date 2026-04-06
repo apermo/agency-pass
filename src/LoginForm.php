@@ -10,7 +10,7 @@ namespace Agency_Pass;
 class LoginForm {
 
 	/**
-	 * Register hooks for the login form.
+	 * Registers hooks for the login form.
 	 *
 	 * @return void
 	 */
@@ -22,7 +22,7 @@ class LoginForm {
 	}
 
 	/**
-	 * Render the Agency Pass UI below the standard login fields.
+	 * Renders the Agency Pass UI below the standard login fields.
 	 *
 	 * @return void
 	 */
@@ -66,18 +66,18 @@ class LoginForm {
 	}
 
 	/**
-	 * Show a result message after a magic link request.
+	 * Shows a result message after a magic link request.
 	 *
 	 * @param string $message The existing login message.
 	 *
 	 * @return string
 	 */
 	public static function confirmation_message( string $message ): string {
-		if ( ! isset( $_GET['agency_pass'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( ! isset( $_GET['agency_pass'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Display-only, no state change.
 			return $message;
 		}
 
-		$result = sanitize_text_field( wp_unslash( $_GET['agency_pass'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$result = sanitize_text_field( wp_unslash( $_GET['agency_pass'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Display-only, no state change.
 
 		if ( $result === 'rejected' ) {
 			return '<div id="login_error"><strong>'
@@ -93,17 +93,19 @@ class LoginForm {
 	}
 
 	/**
-	 * Trigger the login form shake animation on rejection.
+	 * Triggers the login form shake animation on rejection.
 	 *
 	 * Mirrors the wp_shake_js() behavior from WordPress core.
 	 *
 	 * @return void
 	 */
 	public static function maybe_shake(): void {
-		if ( // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			! isset( $_GET['agency_pass'] )
-			|| $_GET['agency_pass'] !== 'rejected'
-		) {
+		if ( ! isset( $_GET['agency_pass'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Display-only, no state change.
+			return;
+		}
+
+		$result = sanitize_text_field( wp_unslash( $_GET['agency_pass'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Display-only, no state change.
+		if ( $result !== 'rejected' ) {
 			return;
 		}
 
@@ -111,7 +113,7 @@ class LoginForm {
 	}
 
 	/**
-	 * Enqueue minimal styles for the Agency Pass login UI.
+	 * Enqueues minimal styles for the Agency Pass login UI.
 	 *
 	 * @return void
 	 */
