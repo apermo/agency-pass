@@ -1,7 +1,7 @@
 === Agency Pass ===
 Contributors: flavor
 Tags: login, emergency, agency, magic-link, security
-Requires at least: 6.2
+Requires at least: 6.4
 Tested up to: 6.7
 Requires PHP: 8.1
 Stable tag: 0.1.0
