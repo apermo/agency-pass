@@ -21,6 +21,7 @@ class RequestHandler {
 		add_action( 'admin_post_nopriv_agency_pass_request', [ self::class, 'handle_request' ] );
 		add_action( 'admin_post_nopriv_agency_pass_login', [ self::class, 'handle_login' ] );
 		add_action( 'wp_logout', [ self::class, 'maybe_revoke_on_logout' ], 10, 1 );
+		add_filter( 'allow_password_reset', [ self::class, 'block_password_reset' ], 10, 2 );
 	}
 
 	/**
@@ -276,6 +277,22 @@ class RequestHandler {
 
 		wp_safe_redirect( $redirect_url );
 		exit();
+	}
+
+	/**
+	 * Blocks password reset for managed Agency Pass users.
+	 *
+	 * @param bool $allow Whether to allow the password reset.
+	 * @param int  $user_id The user ID.
+	 *
+	 * @return bool
+	 */
+	public static function block_password_reset( bool $allow, int $user_id ): bool {
+		if ( (string) get_user_meta( $user_id, '_agency_pass_user', true ) === '1' ) {
+			return false;
+		}
+
+		return $allow;
 	}
 
 	/**
