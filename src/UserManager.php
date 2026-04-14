@@ -35,9 +35,11 @@ class UserManager {
 	}
 
 	/**
-	 * Finds an existing non-expired emergency user by email.
+	 * Finds an existing emergency user by email.
 	 *
-	 * If an expired user is found, revoke its role instead of deleting it.
+	 * Returns the user regardless of expiry status so that
+	 * {@see self::extend()} can reactivate expired accounts
+	 * instead of failing on duplicate-email creation.
 	 *
 	 * @param string $email The email to search for.
 	 *
@@ -59,15 +61,7 @@ class UserManager {
 			return null;
 		}
 
-		$user_id = (int) $users[0];
-		$expires = (int) get_user_meta( $user_id, self::META_EXPIRES, true );
-
-		if ( $expires < \time() ) {
-			self::revoke_role( $user_id );
-			return null;
-		}
-
-		return $user_id;
+		return (int) $users[0];
 	}
 
 	/**
