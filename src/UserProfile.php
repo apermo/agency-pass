@@ -60,11 +60,11 @@ class UserProfile {
 			return;
 		}
 
-		if ( $role === Role::ROLE_NAME ) {
+		if ( $role === Role::ROLE_NAME || $role === '' ) {
 			return;
 		}
 
-		// Role changed away from agency_pass_admin — promote to regular account.
+		// Role changed to a real role — promote to regular account.
 		delete_user_meta( $user_id, '_agency_pass_user' );
 		delete_user_meta( $user_id, '_agency_pass_expires' );
 	}
