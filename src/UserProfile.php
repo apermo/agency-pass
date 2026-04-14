@@ -22,6 +22,9 @@ class UserProfile {
 		add_action( 'set_user_role', [ self::class, 'handle_role_change' ], 10, 3 );
 		add_action( 'admin_post_agency_pass_reenroll', [ self::class, 'handle_reenroll' ] );
 		add_action( 'admin_post_agency_pass_end_session', [ self::class, 'handle_end_session' ] );
+		add_action( 'admin_notices', [ self::class, 'render_admin_notice' ] );
+		add_action( 'admin_footer', [ self::class, 'render_role_confirm_script' ] );
+		add_action( 'edit_user_profile_update', [ self::class, 'handle_promote' ] );
 	}
 
 	/**
@@ -145,6 +148,115 @@ class UserProfile {
 	}
 
 	/**
+	 * Renders an admin notice on profile pages for managed users.
+	 *
+	 * @return void
+	 */
+	public static function render_admin_notice(): void {
+		$screen = get_current_screen();
+		if ( $screen === null || $screen->id !== 'user-edit' ) {
+			return;
+		}
+
+		$user_id = (int) sanitize_text_field( wp_unslash( $_GET['user_id'] ?? '0' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Display-only, no state change.
+		if ( $user_id === 0 ) {
+			return;
+		}
+
+		if ( get_user_meta( $user_id, '_agency_pass_user', true ) !== '1' ) {
+			return;
+		}
+
+		?>
+		<div class="notice notice-warning">
+			<p>
+				<strong><?php esc_html_e( 'Agency Pass:', 'agency-pass' ); ?></strong>
+				<?php esc_html_e( 'This account is managed by Agency Pass. Changing the role will permanently remove Agency Pass management.', 'agency-pass' ); ?>
+			</p>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Renders the JS confirmation dialog for role changes on managed users.
+	 *
+	 * @return void
+	 */
+	public static function render_role_confirm_script(): void {
+		$screen = get_current_screen();
+		if ( $screen === null || $screen->id !== 'user-edit' ) {
+			return;
+		}
+
+		$user_id = (int) sanitize_text_field( wp_unslash( $_GET['user_id'] ?? '0' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Display-only, no state change.
+		if ( $user_id === 0 ) {
+			return;
+		}
+
+		if ( get_user_meta( $user_id, '_agency_pass_user', true ) !== '1' ) {
+			return;
+		}
+
+		$message = esc_js(
+			__( 'This will permanently remove Agency Pass management from this user. Continue?', 'agency-pass' ),
+		);
+		?>
+		<script>
+		(function() {
+			var roleSelect = document.getElementById('role');
+			if (!roleSelect) { return; }
+
+			var originalRole = roleSelect.value;
+
+			roleSelect.addEventListener('change', function() {
+				var input = document.getElementById('agency-pass-promote');
+
+				if (this.value === originalRole) {
+					if (input) { input.remove(); }
+					return;
+				}
+
+				if (confirm('<?php echo $message; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Already escaped via esc_js(). ?>')) {
+					if (!input) {
+						input = document.createElement('input');
+						input.type = 'hidden';
+						input.name = 'agency_pass_promote';
+						input.id = 'agency-pass-promote';
+						roleSelect.form.appendChild(input);
+					}
+					input.value = '1';
+				} else {
+					this.value = originalRole;
+					if (input) { input.remove(); }
+				}
+			});
+		})();
+		</script>
+		<?php
+	}
+
+	/**
+	 * Handles explicit promotion triggered by the hidden input.
+	 *
+	 * @param int $user_id The user ID being updated.
+	 *
+	 * @return void
+	 */
+	public static function handle_promote( int $user_id ): void {
+		if ( ! isset( $_POST['agency_pass_promote'] ) ) {
+			return;
+		}
+
+		$nonce = sanitize_text_field( wp_unslash( $_POST['agency_pass_promote_nonce'] ?? '' ) );
+		if ( ! wp_verify_nonce( $nonce, 'agency_pass_promote_' . $user_id ) ) {
+			return;
+		}
+
+		delete_user_meta( $user_id, '_agency_pass_user' );
+		delete_user_meta( $user_id, '_agency_pass_expires' );
+	}
+
+	/**
 	 * Renders the managed status info box with TTL and end-session button.
 	 *
 	 * @param WP_User $user The managed user.
@@ -200,6 +312,7 @@ class UserProfile {
 			</tr>
 		</table>
 		<?php
+		wp_nonce_field( 'agency_pass_promote_' . $user->ID, 'agency_pass_promote_nonce' );
 	}
 
 	/**
