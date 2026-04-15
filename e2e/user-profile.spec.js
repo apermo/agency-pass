@@ -27,7 +27,7 @@ test.describe('Agency Pass user profile management', () => {
         await page.goto(`/wp-admin/user-edit.php?user_id=${agencyUserId}`);
         await dismissWsalWizard(page);
 
-        await expect(page.locator('.notice-warning')).toBeVisible();
+        await expect(page.locator('.notice-warning:has-text("Agency Pass")')).toBeVisible();
         await expect(page.locator('h2', { hasText: 'Agency Pass' })).toBeVisible();
         await expect(page.locator('.form-table >> text=managed by Agency Pass')).toBeVisible();
         await expect(page.locator('text=remaining')).toBeVisible();
