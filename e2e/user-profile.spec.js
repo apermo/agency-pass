@@ -27,8 +27,9 @@ test.describe('Agency Pass user profile management', () => {
         await page.goto(`/wp-admin/user-edit.php?user_id=${agencyUserId}`);
         await dismissWsalWizard(page);
 
+        await expect(page.locator('.notice-warning')).toBeVisible();
         await expect(page.locator('h2', { hasText: 'Agency Pass' })).toBeVisible();
-        await expect(page.locator('text=managed by Agency Pass')).toBeVisible();
+        await expect(page.locator('.form-table >> text=managed by Agency Pass')).toBeVisible();
         await expect(page.locator('text=remaining')).toBeVisible();
         await expect(page.locator('a:has-text("End Session Now")')).toBeVisible();
     });
@@ -78,6 +79,6 @@ test.describe('Agency Pass user profile management', () => {
 
         const role = wpCli(`user get ${agencyUserId} --field=roles`);
         expect(role).toContain('agency_pass_admin');
-        await expect(page.locator('text=managed by Agency Pass')).toBeVisible();
+        await expect(page.locator('.form-table >> text=managed by Agency Pass')).toBeVisible();
     });
 });
