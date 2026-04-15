@@ -36,7 +36,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - "End Session Now" button to immediately revoke role and destroy sessions
 - "Re-enroll" button for eligible users whose management was previously removed
 - Automatic promotion when admin changes a managed user's role
+- Admin notice on managed user profile pages warning about role change consequences
+- JS confirmation dialog when changing a managed user's role with explicit promotion via hidden input
+- Password reset blocked for managed users (`allow_password_reset` filter)
 - Playwright E2E test coverage including full magic link flow via Mailpit
+
+### Fixed
+
+- Logout no longer deletes managed-user meta — users can re-request magic links after logging out
+- Expired managed users are reactivated instead of failing on duplicate email creation
 
 [Unreleased]: https://github.com/apermo/agency-pass/compare/v0.1.0...HEAD
 [0.1.0]: https://github.com/apermo/agency-pass/releases/tag/v0.1.0

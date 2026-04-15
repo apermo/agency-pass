@@ -4,7 +4,7 @@
 [![codecov](https://codecov.io/gh/apermo/agency-pass/graph/badge.svg)](https://codecov.io/gh/apermo/agency-pass)
 [![Packagist Version](https://img.shields.io/packagist/v/apermo/agency-pass)](https://packagist.org/packages/apermo/agency-pass)
 [![PHP Version](https://img.shields.io/packagist/dependency-v/apermo/agency-pass/php)](composer.json)
-[![WordPress](https://img.shields.io/badge/WordPress-6.2%2B-21759b)](https://wordpress.org/)
+[![WordPress](https://img.shields.io/badge/WordPress-6.4%2B-21759b)](https://wordpress.org/)
 [![License: GPL v2+](https://img.shields.io/badge/License-GPLv2+-blue.svg)](LICENSE)
 [![Donate](https://img.shields.io/badge/Donate-PayPal-009cde)](https://paypal.me/apermo)
 
@@ -19,7 +19,7 @@ infrastructure required — the entire solution is self-contained.
 ## Requirements
 
 - PHP 8.1+
-- WordPress 6.2+
+- WordPress 6.4+
 
 ## Installation
 
