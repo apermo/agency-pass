@@ -11,9 +11,10 @@ class UserManager {
 
 	private const META_EXPIRES = '_agency_pass_expires';
 	private const META_MARKER  = '_agency_pass_user';
+	private const DEFAULT_TTL  = 28800; // 8 hours (one work day).
 
 	/**
-	 * Create or reuse a temporary emergency user for the given email.
+	 * Creates or reuses a temporary emergency user for the given email.
 	 *
 	 * If an active (non-expired) user already exists for this email, reuse it
 	 * and extend the TTL.
@@ -34,7 +35,11 @@ class UserManager {
 	}
 
 	/**
-	 * Find an existing non-expired emergency user by email.
+	 * Finds an existing emergency user by email.
+	 *
+	 * Returns the user regardless of expiry status so that
+	 * {@see self::extend()} can reactivate expired accounts
+	 * instead of failing on duplicate-email creation.
 	 *
 	 * @param string $email The email to search for.
 	 *
@@ -43,11 +48,12 @@ class UserManager {
 	public static function find_existing( string $email ): ?int {
 		$users = get_users(
 			[
-				'email'      => $email,
-				'meta_key'   => self::META_MARKER, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
-				'meta_value' => '1', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
-				'number'     => 1,
-				'fields'     => 'ID',
+				'search'         => $email,
+				'search_columns' => [ 'user_email' ],
+				'meta_key'       => self::META_MARKER, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Required for user identification.
+				'meta_value'     => '1', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Required for user identification.
+				'number'         => 1,
+				'fields'         => 'ID',
 			],
 		);
 
@@ -55,19 +61,11 @@ class UserManager {
 			return null;
 		}
 
-		$user_id = (int) $users[0];
-		$expires = (int) get_user_meta( $user_id, self::META_EXPIRES, true );
-
-		if ( $expires < \time() ) {
-			wp_delete_user( $user_id );
-			return null;
-		}
-
-		return $user_id;
+		return (int) $users[0];
 	}
 
 	/**
-	 * Create a new temporary emergency user.
+	 * Creates a new temporary emergency user.
 	 *
 	 * @param string $email The requesting user's email address.
 	 *
@@ -105,26 +103,32 @@ class UserManager {
 	}
 
 	/**
-	 * Extend the TTL of an existing emergency user.
+	 * Extends the TTL of an existing emergency user.
 	 *
 	 * @param int $user_id The user ID to extend.
 	 *
 	 * @return void
 	 */
 	public static function extend( int $user_id ): void {
+		$user = get_userdata( $user_id );
+		if ( $user !== false && ! \in_array( Role::ROLE_NAME, $user->roles, true ) ) {
+			$user->set_role( Role::ROLE_NAME );
+		}
+
 		update_user_meta( $user_id, self::META_EXPIRES, \time() + self::ttl() );
 	}
 
 	/**
-	 * Delete all expired emergency users.
+	 * Revokes the role of all expired emergency users.
 	 *
 	 * @return void
 	 */
-	public static function delete_expired(): void {
+	public static function expire_users(): void {
 		$users = get_users(
 			[
-				'meta_key'   => self::META_MARKER, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
-				'meta_value' => '1', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+				'meta_key'   => self::META_MARKER, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Required for user identification.
+				'meta_value' => '1', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Required for user identification.
+				'role'       => Role::ROLE_NAME,
 				'fields'     => 'ID',
 			],
 		);
@@ -134,42 +138,56 @@ class UserManager {
 			$expires = (int) get_user_meta( $user_id, self::META_EXPIRES, true );
 
 			if ( $expires < \time() ) {
-				$user = get_userdata( $user_id );
-				wp_delete_user( $user_id );
+				self::revoke_role( $user_id );
 
+				$user = get_userdata( $user_id );
 				if ( $user !== false ) {
 					/**
-					 * Fires when an expired emergency user is cleaned up.
+					 * Fires when an emergency user's role is revoked after expiry.
 					 *
-					 * @param string $username The username that was cleaned up.
+					 * @param string $username The username that was expired.
 					 */
-					do_action( 'agency_pass_user_cleanup', $user->user_login ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+					do_action( 'agency_pass_user_cleanup', $user->user_login ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Public API hook.
 				}
 			}
 		}
 	}
 
 	/**
-	 * Delete all emergency users (for uninstall/deactivation).
+	 * Revokes the role of all emergency users (for deactivation).
 	 *
 	 * @return void
 	 */
-	public static function delete_all(): void {
+	public static function revoke_all(): void {
 		$users = get_users(
 			[
-				'meta_key'   => self::META_MARKER, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
-				'meta_value' => '1', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+				'meta_key'   => self::META_MARKER, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Required for user identification.
+				'meta_value' => '1', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Required for user identification.
 				'fields'     => 'ID',
 			],
 		);
 
 		foreach ( $users as $user_id ) {
-			wp_delete_user( (int) $user_id );
+			self::revoke_role( (int) $user_id );
 		}
 	}
 
 	/**
-	 * Generate a username from an email address.
+	 * Removes the agency pass role from a user, leaving them with no role.
+	 *
+	 * @param int $user_id The user ID.
+	 *
+	 * @return void
+	 */
+	private static function revoke_role( int $user_id ): void {
+		$user = get_userdata( $user_id );
+		if ( $user !== false ) {
+			$user->set_role( '' );
+		}
+	}
+
+	/**
+	 * Generates a username from an email address.
 	 *
 	 * @param string $email The email address.
 	 *
@@ -186,15 +204,15 @@ class UserManager {
 	}
 
 	/**
-	 * Return the configured user TTL in seconds.
+	 * Returns the configured user TTL in seconds.
 	 *
 	 * @return int
 	 */
-	private static function ttl(): int {
+	public static function ttl(): int {
 		if ( \defined( 'AGENCY_PASS_USER_TTL' ) ) {
 			return (int) \AGENCY_PASS_USER_TTL;
 		}
 
-		return 86400;
+		return self::DEFAULT_TTL;
 	}
 }

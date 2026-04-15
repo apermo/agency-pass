@@ -19,7 +19,7 @@ class Plugin {
 	private static string $file = '';
 
 	/**
-	 * Initialize the plugin.
+	 * Initializes the plugin.
 	 *
 	 * @param string $file Main plugin file path.
 	 *
@@ -34,7 +34,7 @@ class Plugin {
 	}
 
 	/**
-	 * Return the main plugin file path.
+	 * Returns the main plugin file path.
 	 *
 	 * @return string
 	 */
@@ -62,11 +62,11 @@ class Plugin {
 		MuPluginInstaller::uninstall();
 		Role::unregister();
 		Cleanup::unschedule();
-		UserManager::delete_all();
+		UserManager::revoke_all();
 	}
 
 	/**
-	 * Boot the plugin after all plugins are loaded.
+	 * Boots the plugin after all plugins are loaded.
 	 *
 	 * Fail closed: if AGENCY_PASS_EMAIL_PATTERN is not defined, do nothing.
 	 *
@@ -78,9 +78,17 @@ class Plugin {
 		}
 
 		Role::ensure_exists();
+		Role::register_hooks();
+		UserProfile::register_hooks();
+
+		if ( ! AuditLog::has_available_logger() ) {
+			AdminNotice::register_hooks();
+			return;
+		}
+
+		AuditLog::register_hooks();
 		LoginForm::register_hooks();
 		RequestHandler::register_hooks();
 		Cleanup::register_hooks();
-		AuditLog::register_hooks();
 	}
 }

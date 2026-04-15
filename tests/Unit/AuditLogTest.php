@@ -10,7 +10,7 @@ use Brain\Monkey\Functions;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Tests for the AuditLog class.
+ * Tests for the AuditLog registry class.
  */
 class AuditLogTest extends TestCase {
 
@@ -35,53 +35,64 @@ class AuditLogTest extends TestCase {
 	}
 
 	/**
-	 * Verify register_hooks registers the expected actions.
+	 * Verify has_available_logger returns false when no logger is available.
+	 *
+	 * WpSecurityAuditLog class does not exist in tests.
 	 *
 	 * @return void
 	 */
-	public function test_register_hooks(): void {
+	public function test_has_available_logger_returns_false(): void {
+		$this->assertFalse( AuditLog::has_available_logger() );
+	}
+
+	/**
+	 * Verify register_hooks always registers fallback handlers.
+	 *
+	 * @return void
+	 */
+	public function test_register_hooks_registers_fallbacks(): void {
 		Functions\expect( 'add_action' )
 			->once()
-			->with( 'agency_pass_link_requested', [ AuditLog::class, 'on_link_requested' ], 10, 3 );
+			->with( 'agency_pass_link_requested', [ AuditLog::class, 'fallback_link_requested' ], 99, 3 );
 
 		Functions\expect( 'add_action' )
 			->once()
-			->with( 'agency_pass_login', [ AuditLog::class, 'on_login' ], 10, 3 );
+			->with( 'agency_pass_login', [ AuditLog::class, 'fallback_login' ], 99, 3 );
 
 		Functions\expect( 'add_action' )
 			->once()
-			->with( 'agency_pass_user_cleanup', [ AuditLog::class, 'on_user_cleanup' ], 10, 1 );
+			->with( 'agency_pass_user_cleanup', [ AuditLog::class, 'fallback_user_cleanup' ], 99, 1 );
 
 		AuditLog::register_hooks();
 	}
 
 	/**
-	 * Verify on_link_requested completes without error.
+	 * Verify fallback_link_requested completes without error.
 	 *
 	 * @return void
 	 */
-	public function test_on_link_requested_logs(): void {
-		AuditLog::on_link_requested( 'test@example.tld', '127.0.0.1', true );
+	public function test_fallback_link_requested(): void {
+		AuditLog::fallback_link_requested( 'test@example.tld', '127.0.0.1', true );
 		$this->assertTrue( true );
 	}
 
 	/**
-	 * Verify on_login completes without error.
+	 * Verify fallback_login completes without error.
 	 *
 	 * @return void
 	 */
-	public function test_on_login_logs(): void {
-		AuditLog::on_login( 'test@example.tld', 'agencypass-test', '127.0.0.1' );
+	public function test_fallback_login(): void {
+		AuditLog::fallback_login( 'test@example.tld', 'agencypass-test', '127.0.0.1' );
 		$this->assertTrue( true );
 	}
 
 	/**
-	 * Verify on_user_cleanup completes without error.
+	 * Verify fallback_user_cleanup completes without error.
 	 *
 	 * @return void
 	 */
-	public function test_on_user_cleanup_logs(): void {
-		AuditLog::on_user_cleanup( 'agencypass-test' );
+	public function test_fallback_user_cleanup(): void {
+		AuditLog::fallback_user_cleanup( 'agencypass-test' );
 		$this->assertTrue( true );
 	}
 }

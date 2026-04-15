@@ -7,7 +7,7 @@
  * Author URI:  https://apermo.de
  * License:     GPL-2.0-or-later
  * Text Domain: agency-pass
- * Requires at least: 6.2
+ * Requires at least: 6.4
  * Requires PHP: 8.1
  */
 

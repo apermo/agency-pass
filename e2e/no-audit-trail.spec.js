@@ -1,0 +1,38 @@
+const { test, expect } = require('@playwright/test');
+const { wpCli } = require('./helpers');
+
+test.describe('Agency Pass without audit trail plugin', () => {
+    test.beforeAll(() => {
+        wpCli('plugin deactivate wp-security-audit-log');
+    });
+
+    test.afterAll(async ({ browser }) => {
+        wpCli('plugin activate wp-security-audit-log');
+        try {
+            wpCli('option update fs_wsalp skip');
+        } catch {
+            // Ignore.
+        }
+        // Visit WSAL page to clear its activation redirect.
+        const ctx = await browser.newContext({ ignoreHTTPSErrors: true, storageState: '.auth/admin.json' });
+        const page = await ctx.newPage();
+        await page.goto('/wp-admin/admin.php?page=wsal-auditlog');
+        await page.waitForTimeout(1000);
+        await ctx.close();
+    });
+
+    test('does not show Agency Pass button on login page', async ({ browser }) => {
+        const context = await browser.newContext();
+        const page = await context.newPage();
+        await page.goto('/wp-login.php');
+        const button = page.locator('#agency-pass-toggle');
+        await expect(button).not.toBeVisible();
+        await context.close();
+    });
+
+    test('shows missing audit plugin warning in wp-admin', async ({ page }) => {
+        await page.goto('/wp-admin/');
+        const notice = page.locator('.notice-warning', { hasText: 'Agency Pass' });
+        await expect(notice).toContainText('audit trail plugin');
+    });
+});

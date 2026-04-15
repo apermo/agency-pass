@@ -1,7 +1,12 @@
 # Agency Pass
 
 [![PHP CI](https://github.com/apermo/agency-pass/actions/workflows/ci.yml/badge.svg)](https://github.com/apermo/agency-pass/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/apermo/agency-pass/graph/badge.svg)](https://codecov.io/gh/apermo/agency-pass)
+[![Packagist Version](https://img.shields.io/packagist/v/apermo/agency-pass)](https://packagist.org/packages/apermo/agency-pass)
+[![PHP Version](https://img.shields.io/packagist/dependency-v/apermo/agency-pass/php)](composer.json)
+[![WordPress](https://img.shields.io/badge/WordPress-6.4%2B-21759b)](https://wordpress.org/)
 [![License: GPL v2+](https://img.shields.io/badge/License-GPLv2+-blue.svg)](LICENSE)
+[![Donate](https://img.shields.io/badge/Donate-PayPal-009cde)](https://paypal.me/apermo)
 
 Self-service emergency login for agency staff on client WordPress sites.
 
@@ -14,7 +19,7 @@ infrastructure required — the entire solution is self-contained.
 ## Requirements
 
 - PHP 8.1+
-- WordPress 6.2+
+- WordPress 6.4+
 
 ## Installation
 
@@ -36,7 +41,7 @@ define( 'AGENCY_PASS_EMAIL_PATTERN', '/^.+@youragency\.de$/' );
 
 ```php
 define( 'AGENCY_PASS_TOKEN_TTL', 900 );    // Magic link validity in seconds (default: 15 min)
-define( 'AGENCY_PASS_USER_TTL', 86400 );   // Temporary user lifetime in seconds (default: 24 h)
+define( 'AGENCY_PASS_USER_TTL', 28800 );   // Temporary user lifetime in seconds (default: 8 h)
 ```
 
 ## How it works
@@ -52,7 +57,10 @@ define( 'AGENCY_PASS_USER_TTL', 86400 );   // Temporary user lifetime in seconds
 The `agency_pass_admin` role has all administrator capabilities except:
 
 - `edit_users`, `delete_users`, `create_users`
-- `list_users`, `promote_users`, `remove_users`
+- `promote_users`, `remove_users`
+
+The role retains `list_users` (can view the user list). Emergency users are blocked from editing their own
+profile via `map_meta_cap`.
 
 ## Extensibility
 
@@ -91,6 +99,18 @@ ddev start && ddev orchestrate
 ```bash
 git config core.hooksPath .githooks
 ```
+
+## Known incompatibilities
+
+### NinjaFirewall
+
+NinjaFirewall blocks on-the-fly creation of users with elevated roles. Since Agency Pass creates temporary
+admin-level users via `wp_insert_user()`, NinjaFirewall will silently prevent emergency logins from working.
+
+The relevant NinjaFirewall hooks are `nfw_account_creation` (action on `pre_user_login`),
+`nfwhook_update_user_meta` and `nfwhook_add_user_meta` (filters on user meta operations). A bypass is
+possible by removing these hooks before user creation, but this is not recommended and not shipped with the
+plugin.
 
 ## Template Sync
 

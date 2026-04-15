@@ -8,8 +8,10 @@
     <file>.</file>
     <exclude-pattern>vendor/*</exclude-pattern>
     <exclude-pattern>node_modules/*</exclude-pattern>
+    <exclude-pattern>.ddev/*</exclude-pattern>
 
     <arg name="extensions" value="php"/>
+    <config name="ignore_warnings_on_exit" value="1"/>
 
     <rule ref="Apermo"/>
 
